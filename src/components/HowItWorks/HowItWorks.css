@@ -1,0 +1,133 @@
+.how-it-works {
+  background: var(--color-bg-alt);
+  position: relative;
+  overflow: hidden;
+}
+
+.how-it-works::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: var(--gradient-glow);
+  pointer-events: none;
+}
+
+.phases-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xl);
+  position: relative;
+}
+
+.phase-card {
+  position: relative;
+  background: var(--color-bg);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
+  transition: all var(--transition-base);
+}
+
+.phase-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary);
+}
+
+.phase-number {
+  position: absolute;
+  top: var(--space-lg);
+  right: var(--space-lg);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-text-muted);
+  font-family: monospace;
+}
+
+.phase-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-lg);
+  padding: var(--space-md);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+  border-radius: var(--radius-xl);
+  color: var(--color-primary);
+  transition: all var(--transition-base);
+}
+
+.phase-card:hover .phase-icon {
+  background: var(--gradient-primary);
+  color: var(--color-text-inverse);
+  transform: scale(1.05);
+}
+
+.phase-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.phase-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin-bottom: var(--space-md);
+  color: var(--color-text);
+}
+
+.phase-description {
+  font-size: var(--font-size-base);
+  color: var(--color-text-light);
+  line-height: 1.7;
+}
+
+.phase-connector {
+  display: none;
+  position: absolute;
+  top: 50%;
+  right: -30px;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  color: var(--color-primary);
+  opacity: 0.5;
+  z-index: 1;
+}
+
+@media (min-width: 969px) {
+  .phase-connector {
+    display: block;
+  }
+}
+
+.phase-connector svg {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 968px) {
+  .phases-grid {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .phase-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .phase-connector {
+    display: block;
+    position: relative;
+    top: auto;
+    right: auto;
+    transform: rotate(90deg);
+    margin: var(--space-lg) 0;
+  }
+}

@@ -1,0 +1,603 @@
+.noah-world {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #fffef8 0%, #fff9e6 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Paper texture */
+.paper-texture {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  z-index: 0;
+  background:
+    repeating-linear-gradient(
+      transparent,
+      transparent 38px,
+      #e8e4d8 38px,
+      #e8e4d8 40px
+    );
+}
+
+/* Doodles */
+.doodles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.doodle {
+  position: absolute;
+  opacity: 0.5;
+}
+
+.doodle.sun {
+  width: 60px;
+  top: 5%;
+  left: 3%;
+}
+
+.doodle.cloud {
+  width: 80px;
+  top: 8%;
+  left: 25%;
+}
+
+.doodle.star {
+  width: 30px;
+  bottom: 25%;
+  left: 5%;
+}
+
+.doodle.heart {
+  width: 25px;
+  top: 15%;
+  left: 45%;
+}
+
+.doodle.squiggle {
+  width: 60px;
+  bottom: 35%;
+  left: 2%;
+}
+
+/* ============================================
+   TIMER - Top Center
+   ============================================ */
+.timer-top {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.timer-container {
+  background: white;
+  padding: 10px 22px;
+  border: 3px solid #888;
+  border-radius: 20px 40px 25px 35px;
+  transform: rotate(-1deg);
+  box-shadow: 4px 4px 0 #ccc;
+  text-align: center;
+}
+
+.timer-label {
+  display: block;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 0.95rem;
+  color: #888;
+  margin-bottom: 2px;
+}
+
+.timer-display {
+  font-family: 'Caveat', cursive;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #4a4a4a;
+  letter-spacing: 3px;
+}
+
+.timer-char {
+  display: inline-block;
+}
+
+.creating-note {
+  font-family: 'Indie Flower', cursive;
+  font-size: 1.1rem;
+  color: #e6a800;
+  padding: 6px 12px;
+  background: #fff9e6;
+  border: 2px dashed #e6a800;
+  border-radius: 15px 30px 20px 25px;
+}
+
+/* ============================================
+   NOAH - 3D Character - RIGHT SIDE
+   ============================================ */
+.noah-stage {
+  position: fixed;
+  right: 20px;
+  top: 55%;
+  transform: translateY(-50%);
+  width: 350px;
+  height: 450px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.noah-stage canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.noah-name-tag {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.2rem;
+  color: #5a5a5a;
+  background: #fff9e6;
+  padding: 5px 15px;
+  border: 2px solid #888;
+  border-radius: 30px 10px 25px 15px;
+}
+
+/* ============================================
+   MAIN CONTENT AREA
+   ============================================ */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 100px 40px 40px 40px;
+  padding-right: 400px; /* Space for NOAH on right */
+  z-index: 10;
+}
+
+/* ============================================
+   LEFT INFO - Small intro
+   ============================================ */
+.left-info {
+  max-width: 280px;
+  margin-bottom: 30px;
+}
+
+.greeting {
+  margin-bottom: 8px;
+}
+
+.greeting .big-text {
+  font-family: 'Indie Flower', cursive;
+  font-size: 2.8rem;
+  color: #4a4a4a;
+}
+
+.title {
+  margin-bottom: 15px;
+}
+
+.title > span:first-child {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.3rem;
+  color: #666;
+}
+
+.name-box {
+  display: inline-block;
+  position: relative;
+  padding: 3px 15px;
+  margin-top: 3px;
+}
+
+.name-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #fff3b0;
+  transform: rotate(-1deg) skewX(-2deg);
+  border-radius: 8px 30px 15px 25px;
+  z-index: -1;
+}
+
+.name-box .name {
+  font-family: 'Caveat', cursive;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #3a3a3a;
+}
+
+.about-lines p {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.15rem;
+  color: #555;
+  margin-bottom: 5px;
+  line-height: 1.3;
+}
+
+/* ============================================
+   DRAWING AREA - CENTER, BIGGEST
+   ============================================ */
+.drawing-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  margin: 20px 0;
+}
+
+.drawing-frame {
+  width: 100%;
+  max-width: 700px;
+  min-height: 450px;
+  background: white;
+  border: 4px solid #888;
+  border-radius: 30px 60px 40px 50px;
+  box-shadow: 8px 8px 0 #ddd;
+  padding: 25px;
+  position: relative;
+  transform: rotate(-0.5deg);
+}
+
+.drawing-frame::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 8px;
+  background: #ffb5b5;
+  border-radius: 10px;
+  opacity: 0.7;
+}
+
+.drawing-title {
+  font-family: 'Caveat', cursive;
+  font-size: 1.8rem;
+  color: #666;
+  text-align: center;
+  margin-bottom: 20px;
+  transform: rotate(0.5deg);
+}
+
+.drawing-canvas {
+  width: 100%;
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.empty-canvas {
+  text-align: center;
+  padding: 60px 30px;
+}
+
+.empty-canvas p {
+  font-family: 'Indie Flower', cursive;
+  font-size: 1.4rem;
+  color: #aaa;
+  margin-bottom: 10px;
+}
+
+.empty-canvas .sub-note {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.1rem;
+  color: #ccc;
+}
+
+/* Current drawing display */
+.current-drawing {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: drawing-fade-in 3s ease-out forwards;
+}
+
+.current-drawing img {
+  max-width: 100%;
+  max-height: 380px;
+  border: 3px solid #ddd;
+  border-radius: 15px 25px 20px 30px;
+  box-shadow: 5px 5px 0 #eee;
+  transform: rotate(0.8deg);
+}
+
+@keyframes drawing-fade-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.drawing-number {
+  position: absolute;
+  bottom: -10px;
+  right: 20px;
+  font-family: 'Caveat', cursive;
+  font-size: 1.4rem;
+  color: #888;
+  background: #fff9e6;
+  padding: 3px 12px;
+  border: 2px solid #ccc;
+  border-radius: 20px 10px 15px 25px;
+  transform: rotate(2deg);
+}
+
+/* ============================================
+   GALLERY - BOTTOM, FULL WIDTH
+   ============================================ */
+.gallery-section {
+  width: 100%;
+  padding: 40px 30px 60px 30px;
+  background: linear-gradient(180deg, transparent 0%, #fff5e6 30%);
+  z-index: 10;
+}
+
+.gallery-header {
+  margin-bottom: 25px;
+  padding-left: 20px;
+}
+
+.gallery-header h2 {
+  font-family: 'Caveat', cursive;
+  font-size: 2.2rem;
+  color: #555;
+  transform: rotate(-1deg);
+  display: inline-block;
+}
+
+.gallery-header .count {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.1rem;
+  color: #888;
+  margin-left: 15px;
+}
+
+.gallery-floor {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding: 20px;
+  min-height: 180px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 100px,
+      rgba(0,0,0,0.02) 100px,
+      rgba(0,0,0,0.02) 102px
+    );
+  border-top: 3px dashed #ccc;
+  position: relative;
+}
+
+.gallery-empty {
+  width: 100%;
+  text-align: center;
+  padding: 50px 20px;
+}
+
+.gallery-empty p {
+  font-family: 'Indie Flower', cursive;
+  font-size: 1.3rem;
+  color: #bbb;
+}
+
+/* Gallery items - messy child-like placement */
+.gallery-item {
+  flex-shrink: 0;
+  width: 140px;
+  padding: 8px;
+  background: white;
+  border: 2px solid #ddd;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.08);
+  animation: gallery-drop 0.6s ease-out forwards;
+}
+
+.gallery-item:nth-child(odd) {
+  transform: rotate(-2deg);
+  margin-top: 10px;
+}
+
+.gallery-item:nth-child(even) {
+  transform: rotate(1.5deg);
+  margin-top: 25px;
+}
+
+.gallery-item:nth-child(3n) {
+  transform: rotate(-0.5deg);
+  margin-top: 5px;
+}
+
+.gallery-item:nth-child(4n) {
+  transform: rotate(2.5deg);
+  margin-top: 30px;
+}
+
+.gallery-item:nth-child(5n) {
+  transform: rotate(-1.8deg);
+  margin-top: 15px;
+}
+
+@keyframes gallery-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px) rotate(5deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gallery-item img {
+  width: 100%;
+  display: block;
+  border-radius: 3px;
+}
+
+.gallery-item .item-number {
+  display: block;
+  text-align: center;
+  font-family: 'Caveat', cursive;
+  font-size: 1rem;
+  color: #888;
+  margin-top: 5px;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.footer-message {
+  text-align: center;
+  padding: 20px;
+  font-family: 'Indie Flower', cursive;
+  font-size: 1.1rem;
+  color: #999;
+  z-index: 10;
+}
+
+/* Wobbly text */
+.wobbly-letter {
+  display: inline-block;
+  transition: color 0.2s ease;
+}
+
+.wobbly-text {
+  display: inline;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1100px) {
+  .noah-stage {
+    width: 280px;
+    height: 360px;
+    right: 10px;
+  }
+
+  .main-content {
+    padding-right: 310px;
+  }
+
+  .drawing-frame {
+    max-width: 550px;
+    min-height: 380px;
+  }
+}
+
+@media (max-width: 900px) {
+  .noah-stage {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 100%;
+    max-width: 300px;
+    height: 350px;
+    margin: 20px auto;
+    order: 1;
+  }
+
+  .main-content {
+    padding: 100px 20px 20px 20px;
+    order: 2;
+  }
+
+  .left-info {
+    text-align: center;
+    max-width: 100%;
+    margin: 0 auto 20px auto;
+  }
+
+  .drawing-area {
+    min-height: 300px;
+  }
+
+  .drawing-frame {
+    min-height: 320px;
+    padding: 20px;
+  }
+
+  .gallery-section {
+    order: 3;
+    padding: 30px 15px 50px 15px;
+  }
+
+  .gallery-item {
+    width: 110px;
+  }
+
+  .noah-world {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  .timer-top {
+    top: 15px;
+  }
+
+  .timer-display {
+    font-size: 1.8rem;
+  }
+
+  .greeting .big-text {
+    font-size: 2.2rem;
+  }
+
+  .name-box .name {
+    font-size: 2rem;
+  }
+
+  .drawing-frame {
+    min-height: 280px;
+    padding: 15px;
+  }
+
+  .drawing-title {
+    font-size: 1.4rem;
+  }
+
+  .current-drawing img {
+    max-height: 250px;
+  }
+
+  .gallery-item {
+    width: 90px;
+    padding: 5px;
+  }
+
+  .gallery-header h2 {
+    font-size: 1.8rem;
+  }
+}

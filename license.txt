@@ -1,0 +1,11 @@
+Model Information:
+* title:	Kid Boy
+* source:	https://sketchfab.com/3d-models/kid-boy-ccdc8ca6448d431a947a41d897ca6351
+* author:	oLric (https://sketchfab.com/selimalsk)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Kid Boy" (https://sketchfab.com/3d-models/kid-boy-ccdc8ca6448d431a947a41d897ca6351) by oLric (https://sketchfab.com/selimalsk) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
