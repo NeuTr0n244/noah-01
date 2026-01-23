@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client'
 
-// Socket.io client
-const SOCKET_URL = 'http://localhost:3001'
+// Socket.io client - use environment variable or fallback to localhost
+const SOCKET_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001'
 
 let socket = null
 let isConnected = false
