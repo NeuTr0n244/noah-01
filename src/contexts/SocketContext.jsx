@@ -3,7 +3,8 @@ import { io } from 'socket.io-client'
 
 const SocketContext = createContext(null)
 
-const SOCKET_URL = 'http://localhost:3001'
+// Use environment variable or fallback to localhost for development
+const SOCKET_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001'
 const MAX_RETRY_ATTEMPTS = 5
 const TIMER_DURATION = 60
 const CONNECTION_TIMEOUT = 15000

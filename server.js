@@ -6,10 +6,15 @@ import cors from 'cors'
 const app = express()
 app.use(cors())
 
+// Health check endpoint for Railway
+app.get('/', (req, res) => {
+  res.json({ status: 'Noah Universe Server Running', drawings: 84 })
+})
+
 const httpServer = createServer(app)
 const io = new Server(httpServer, {
   cors: {
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://127.0.0.1:5173', 'http://127.0.0.1:5175'],
+    origin: '*',  // Allow all origins (Vercel, localhost, etc.)
     methods: ['GET', 'POST']
   }
 })
@@ -112,8 +117,10 @@ const state = {
     duration: 60,
     isDrawing: false
   },
-  currentDrawing: null,
-  gallery: [],  // Starts empty, no duplicates
+  currentDrawing: null,      // Drawing currently shown in "My Drawing" frame
+  previousDrawing: null,     // Previous drawing (will go to gallery when replaced)
+  previousDrawingNumber: 0,  // Number of the previous drawing
+  gallery: [],               // Only contains drawings that LEFT the main frame
   chat: []
 }
 
@@ -159,39 +166,46 @@ const startDrawing = async () => {
   const drawingTime = 3000 + Math.random() * 2000
 
   setTimeout(() => {
-    // Get current drawing by INDEX (sequential)
+    // FIRST: Move the PREVIOUS drawing to gallery (if exists)
+    if (state.previousDrawing) {
+      const galleryItem = {
+        id: `drawing-${state.previousDrawingNumber}`,
+        image: state.previousDrawing,
+        name: `Noah's Art #${state.previousDrawingNumber}`,
+        timestamp: Date.now()
+      }
+
+      // Check if this drawing is already in gallery (by ID)
+      const alreadyExists = state.gallery.some(item => item.id === galleryItem.id)
+
+      if (alreadyExists) {
+        console.log(`[Gallery] Drawing #${state.previousDrawingNumber} already exists, NOT adding duplicate`)
+      } else {
+        // Add previous drawing to gallery (it's leaving the main frame)
+        state.gallery.unshift(galleryItem)
+        console.log(`[Gallery] Drawing #${state.previousDrawingNumber} moved to gallery (left main frame)`)
+        console.log(`[Gallery] Total items: ${state.gallery.length}`)
+
+        // Keep only last 20 items
+        if (state.gallery.length > 20) {
+          state.gallery = state.gallery.slice(0, 20)
+        }
+      }
+    }
+
+    // THEN: Get the NEW drawing by INDEX (sequential)
     const newDrawing = NOAH_DRAWINGS[state.currentImageIndex]
     const drawingNumber = state.currentImageIndex + 1  // Human-readable (1-84)
 
-    console.log(`[Drawing] Selected: Drawing #${drawingNumber} (index ${state.currentImageIndex})`)
+    console.log(`[Drawing] NEW drawing: #${drawingNumber} (index ${state.currentImageIndex})`)
     console.log(`[Drawing] Image: ${newDrawing}`)
 
+    // Save current as previous (for next time)
+    state.previousDrawing = newDrawing
+    state.previousDrawingNumber = drawingNumber
+
+    // Update current drawing (shown in "My Drawing" frame)
     state.currentDrawing = newDrawing
-
-    // Create gallery item with UNIQUE ID based on drawing number
-    const galleryItem = {
-      id: `drawing-${drawingNumber}`,  // Unique ID: drawing-1, drawing-2, etc.
-      image: newDrawing,
-      name: `Noah's Art #${drawingNumber}`,
-      timestamp: Date.now()
-    }
-
-    // Check if this drawing is already in gallery (by ID)
-    const alreadyExists = state.gallery.some(item => item.id === galleryItem.id)
-
-    if (alreadyExists) {
-      console.log(`[Gallery] Drawing #${drawingNumber} already exists, NOT adding duplicate`)
-    } else {
-      // Add to beginning of gallery
-      state.gallery.unshift(galleryItem)
-      console.log(`[Gallery] Added Drawing #${drawingNumber} to gallery`)
-      console.log(`[Gallery] Total items: ${state.gallery.length}`)
-
-      // Keep only last 20 items
-      if (state.gallery.length > 20) {
-        state.gallery = state.gallery.slice(0, 20)
-      }
-    }
 
     // ADVANCE TO NEXT INDEX (sequential, wraps around)
     state.currentImageIndex = (state.currentImageIndex + 1) % TOTAL_DRAWINGS
