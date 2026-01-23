@@ -1,16 +1,20 @@
-import { useRef, useEffect, useMemo, useCallback } from 'react'
+import { useRef, useEffect, useMemo, useCallback, forwardRef, useImperativeHandle } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { useGLTF } from '@react-three/drei'
+import { useGLTF, useAnimations } from '@react-three/drei'
 import * as THREE from 'three'
 
-const MODEL_PATH = '/models/cartoon_asian__boy.glb'
+const MODEL_PATH = '/models/noah.glb'
 const TARGET_HEIGHT = 2.0
 
-export default function Character({ onLoaded }) {
+const Character = forwardRef(function Character({ onLoaded }, ref) {
   const groupRef = useRef()
   const headRef = useRef()
+  const rightArmRef = useRef()
+  const isDrawingRef = useRef(false)
+  const drawingPhaseRef = useRef(0)
   const { camera } = useThree()
-  const { scene } = useGLTF(MODEL_PATH)
+  const modelRef = useRef()
+  const { scene, animations } = useGLTF(MODEL_PATH)
 
   const model = useMemo(() => {
     if (!scene) return null
@@ -24,6 +28,21 @@ export default function Character({ onLoaded }) {
     })
     return clone
   }, [scene])
+
+  // Setup animations
+  const { actions } = useAnimations(animations, modelRef)
+
+  // Play all animations in infinite loop
+  useEffect(() => {
+    if (actions) {
+      Object.values(actions).forEach((action) => {
+        if (action) {
+          action.setLoop(THREE.LoopRepeat, Infinity)
+          action.play()
+        }
+      })
+    }
+  }, [actions])
 
   const transforms = useMemo(() => {
     if (!model) return null
@@ -40,6 +59,22 @@ export default function Character({ onLoaded }) {
     }
   }, [model])
 
+  // Find arm bones after model loads
+  useEffect(() => {
+    if (!model) return
+
+    model.traverse((child) => {
+      if (child.isBone) {
+        const name = child.name.toLowerCase()
+        if (name.includes('right') && (name.includes('arm') || name.includes('shoulder'))) {
+          if (!rightArmRef.current || name.includes('upper')) {
+            rightArmRef.current = child
+          }
+        }
+      }
+    })
+  }, [model])
+
   useEffect(() => {
     if (!transforms) return
     const { height } = transforms
@@ -49,31 +84,79 @@ export default function Character({ onLoaded }) {
     if (onLoaded) onLoaded()
   }, [camera, transforms, onLoaded])
 
+  // Expose methods to parent
+  useImperativeHandle(ref, () => ({
+    startDrawing: () => {
+      isDrawingRef.current = true
+      drawingPhaseRef.current = 0
+    },
+    stopDrawing: () => {
+      isDrawingRef.current = false
+    },
+    celebrate: () => {
+      // Quick celebration wiggle
+      if (groupRef.current) {
+        let frame = 0
+        const animate = () => {
+          frame++
+          if (frame < 30) {
+            groupRef.current.rotation.z = Math.sin(frame * 0.8) * 0.15
+            requestAnimationFrame(animate)
+          } else {
+            groupRef.current.rotation.z = 0
+          }
+        }
+        animate()
+      }
+    }
+  }), [])
+
   useFrame((state) => {
     if (!groupRef.current) return
     const t = state.clock.elapsedTime
 
-    groupRef.current.position.y = Math.sin(t * 2) * 0.03
-    groupRef.current.rotation.y = Math.sin(t * 0.5) * 0.1
-    groupRef.current.rotation.z = Math.sin(t * 0.3) * 0.02
+    // Idle breathing animation
+    groupRef.current.position.y = Math.sin(t * 2) * 0.02
 
+    // Only sway when not drawing
+    if (!isDrawingRef.current) {
+      groupRef.current.rotation.y = Math.sin(t * 0.5) * 0.08
+      groupRef.current.rotation.z = Math.sin(t * 0.3) * 0.015
+    }
+
+    // Head follows mouse
     if (headRef.current) {
-      headRef.current.rotation.y = THREE.MathUtils.clamp(state.mouse.x * 0.4, -0.5, 0.5)
-      headRef.current.rotation.x = THREE.MathUtils.clamp(-state.mouse.y * 0.3, -0.3, 0.3)
+      headRef.current.rotation.y = THREE.MathUtils.clamp(state.mouse.x * 0.3, -0.4, 0.4)
+      headRef.current.rotation.x = THREE.MathUtils.clamp(-state.mouse.y * 0.2, -0.2, 0.2)
+    }
+
+    // Drawing arm animation
+    if (isDrawingRef.current && rightArmRef.current) {
+      drawingPhaseRef.current += 0.15
+      // Simulate drawing motion - arm moves up/down and slightly forward
+      const drawMotion = Math.sin(drawingPhaseRef.current) * 0.3
+      const drawMotion2 = Math.cos(drawingPhaseRef.current * 0.7) * 0.15
+      rightArmRef.current.rotation.x = -0.5 + drawMotion
+      rightArmRef.current.rotation.z = -0.3 + drawMotion2
+    } else if (rightArmRef.current) {
+      // Return to rest position smoothly
+      rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, 0, 0.05)
+      rightArmRef.current.rotation.z = THREE.MathUtils.lerp(rightArmRef.current.rotation.z, 0, 0.05)
     }
   })
 
   const handleClick = useCallback(() => {
-    if (!groupRef.current) return
-    let frame = 0
-    const animate = () => {
-      frame++
-      if (frame < 20) {
-        groupRef.current.rotation.z = Math.sin(frame * 0.8) * 0.2
-        requestAnimationFrame(animate)
+    if (groupRef.current) {
+      let frame = 0
+      const animate = () => {
+        frame++
+        if (frame < 20) {
+          groupRef.current.rotation.z = Math.sin(frame * 0.8) * 0.2
+          requestAnimationFrame(animate)
+        }
       }
+      animate()
     }
-    animate()
   }, [])
 
   if (!model || !transforms) return null
@@ -89,6 +172,7 @@ export default function Character({ onLoaded }) {
       <group ref={headRef} position={[0, height * 0.7, 0]}>
         <group position={[0, -height * 0.7, 0]}>
           <primitive
+            ref={modelRef}
             object={model}
             scale={scale}
             position={[offset.x * scale, offset.y * scale, offset.z * scale]}
@@ -97,6 +181,8 @@ export default function Character({ onLoaded }) {
       </group>
     </group>
   )
-}
+})
 
-useGLTF.preload(MODEL_PATH)
+export default Character
+
+useGLTF.preload('/models/noah.glb')

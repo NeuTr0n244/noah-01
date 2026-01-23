@@ -1,0 +1,206 @@
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Background decorations */
+.background-decorations {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  filter: blur(2px);
+}
+
+.cloud::before,
+.cloud::after {
+  content: '';
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+}
+
+.cloud-1 {
+  width: 120px;
+  height: 50px;
+  top: 8%;
+  left: 10%;
+  animation: floatCloud 25s ease-in-out infinite;
+}
+
+.cloud-1::before {
+  width: 60px;
+  height: 60px;
+  top: -30px;
+  left: 15px;
+}
+
+.cloud-1::after {
+  width: 45px;
+  height: 45px;
+  top: -20px;
+  left: 55px;
+}
+
+.cloud-2 {
+  width: 150px;
+  height: 60px;
+  top: 15%;
+  right: 15%;
+  animation: floatCloud 30s ease-in-out infinite reverse;
+}
+
+.cloud-2::before {
+  width: 70px;
+  height: 70px;
+  top: -35px;
+  left: 20px;
+}
+
+.cloud-2::after {
+  width: 55px;
+  height: 55px;
+  top: -25px;
+  left: 70px;
+}
+
+.cloud-3 {
+  width: 100px;
+  height: 40px;
+  top: 25%;
+  left: 50%;
+  animation: floatCloud 20s ease-in-out infinite;
+}
+
+.cloud-3::before {
+  width: 50px;
+  height: 50px;
+  top: -25px;
+  left: 10px;
+}
+
+.cloud-3::after {
+  width: 40px;
+  height: 40px;
+  top: -18px;
+  left: 45px;
+}
+
+@keyframes floatCloud {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+  }
+  25% {
+    transform: translateX(15px) translateY(-8px);
+  }
+  50% {
+    transform: translateX(25px) translateY(0);
+  }
+  75% {
+    transform: translateX(10px) translateY(8px);
+  }
+}
+
+/* Site Header */
+.site-header {
+  text-align: center;
+  padding: 30px 20px 10px;
+  position: relative;
+}
+
+.site-title {
+  font-family: 'Gaegu', cursive;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #5a4a3a;
+  margin: 0;
+  transform: rotate(-2deg);
+  text-shadow: 3px 3px 0 rgba(255, 255, 255, 0.8);
+  animation: titleBounce 3s ease-in-out infinite;
+}
+
+@keyframes titleBounce {
+  0%, 100% { transform: rotate(-2deg) scale(1); }
+  50% { transform: rotate(-2deg) scale(1.02); }
+}
+
+.site-subtitle {
+  font-family: 'Gaegu', cursive;
+  font-size: 1.3rem;
+  color: #7a6a5a;
+  margin: 5px 0 15px;
+}
+
+/* Main content */
+.site-main {
+  flex: 1;
+  padding: 20px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Footer */
+.site-footer {
+  text-align: center;
+  padding: 30px 20px;
+  font-family: 'Gaegu', cursive;
+  color: #7a6a5a;
+  font-size: 1.1rem;
+}
+
+.site-footer p {
+  margin: 5px 0;
+}
+
+.site-footer .credit {
+  font-size: 0.9rem;
+  color: #9a8a7a;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .site-title {
+    font-size: 2.8rem;
+  }
+
+  .site-subtitle {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .site-header {
+    padding: 20px 15px 10px;
+  }
+
+  .site-title {
+    font-size: 2.2rem;
+  }
+
+  .site-subtitle {
+    font-size: 1rem;
+  }
+
+  .site-main {
+    padding: 15px;
+  }
+
+  .cloud-1, .cloud-2, .cloud-3 {
+    transform: scale(0.7);
+  }
+}

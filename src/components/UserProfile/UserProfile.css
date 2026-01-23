@@ -1,0 +1,375 @@
+/* User Profile Header */
+.user-profile-header {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 15px 8px 8px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 30px;
+  border: 3px solid #e8dcc8;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 1000;
+}
+
+.user-profile-header:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border-color: #7dd3fc;
+}
+
+.user-avatar-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-initial {
+  font-family: 'Gaegu', cursive;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.user-profile-name {
+  font-family: 'Gaegu', cursive;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #5a4a3a;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Profile Modal */
+.profile-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.profile-modal {
+  background: linear-gradient(180deg, #fffef8 0%, #fff5eb 100%);
+  border-radius: 25px;
+  border: 4px solid #e8dcc8;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  padding: 30px;
+  width: 90%;
+  max-width: 380px;
+  position: relative;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 35px;
+  height: 35px;
+  border: none;
+  background: #ff6b6b;
+  color: white;
+  font-size: 1.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 0 #e85555;
+}
+
+.profile-modal-close:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #e85555;
+}
+
+.profile-modal-close:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 #e85555;
+}
+
+.profile-modal-title {
+  font-family: 'Gaegu', cursive;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #5a4a3a;
+  text-align: center;
+  margin-bottom: 25px;
+  transform: rotate(-1deg);
+}
+
+/* Avatar Section */
+.profile-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.profile-avatar-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 4px solid white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.profile-avatar-preview:hover {
+  transform: scale(1.05);
+}
+
+.profile-avatar-preview:hover .avatar-upload-overlay {
+  opacity: 1;
+}
+
+.avatar-preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-preview-initial {
+  font-family: 'Gaegu', cursive;
+  font-size: 3rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-upload-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  border-radius: 50%;
+}
+
+.avatar-upload-overlay span {
+  font-family: 'Gaegu', cursive;
+  font-size: 1rem;
+  color: white;
+  font-weight: 600;
+  text-align: center;
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+.remove-avatar-btn {
+  font-family: 'Gaegu', cursive;
+  font-size: 0.95rem;
+  color: #ff6b6b;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.remove-avatar-btn:hover {
+  color: #e85555;
+}
+
+/* Username Section */
+.profile-username-section {
+  margin-bottom: 25px;
+}
+
+.profile-label {
+  font-family: 'Gaegu', cursive;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #5a4a3a;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.profile-username-input {
+  font-family: 'Gaegu', cursive;
+  font-size: 1.2rem;
+  padding: 12px 15px;
+  border: 3px solid #e8dcc8;
+  border-radius: 15px;
+  width: 100%;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.profile-username-input:focus {
+  border-color: #7dd3fc;
+}
+
+.profile-username-input::placeholder {
+  color: #b5a89a;
+}
+
+.profile-char-count {
+  font-family: 'Gaegu', cursive;
+  font-size: 0.85rem;
+  color: #9a8a7a;
+  display: block;
+  text-align: right;
+  margin-top: 5px;
+}
+
+/* Action Buttons */
+.profile-modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.profile-btn {
+  font-family: 'Gaegu', cursive;
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.profile-btn-cancel {
+  background: linear-gradient(180deg, #e5e7eb 0%, #d1d5db 100%);
+  color: #5a4a3a;
+  box-shadow: 0 4px 0 #9ca3af;
+}
+
+.profile-btn-cancel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #9ca3af;
+}
+
+.profile-btn-cancel:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #9ca3af;
+}
+
+.profile-btn-save {
+  background: linear-gradient(180deg, #7dd3fc 0%, #38bdf8 100%);
+  color: white;
+  box-shadow: 0 4px 0 #0ea5e9;
+}
+
+.profile-btn-save:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #0ea5e9;
+}
+
+.profile-btn-save:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #0ea5e9;
+}
+
+.profile-btn-save:disabled {
+  background: linear-gradient(180deg, #d1d5db 0%, #9ca3af 100%);
+  box-shadow: 0 4px 0 #6b7280;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .user-profile-header {
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px 6px 6px;
+  }
+
+  .user-avatar-button {
+    width: 35px;
+    height: 35px;
+  }
+
+  .avatar-initial {
+    font-size: 1.1rem;
+  }
+
+  .user-profile-name {
+    font-size: 1rem;
+    max-width: 80px;
+  }
+
+  .profile-modal {
+    padding: 20px;
+    margin: 15px;
+  }
+
+  .profile-modal-title {
+    font-size: 1.5rem;
+  }
+
+  .profile-avatar-preview {
+    width: 100px;
+    height: 100px;
+  }
+
+  .avatar-preview-initial {
+    font-size: 2.5rem;
+  }
+
+  .profile-btn {
+    padding: 10px 20px;
+    font-size: 1.1rem;
+  }
+}

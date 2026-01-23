@@ -8,3 +8,6 @@ dist
 .claude
 /scene.bin
 /scene.gltf
+nul
+*.png
+public/models/noah desenho.glb

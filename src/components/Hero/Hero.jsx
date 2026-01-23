@@ -1,296 +1,290 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Scene } from '../Noah3D'
+import Chat from '../Chat/Chat'
+import UserProfile from '../UserProfile'
+import {
+  initSocket,
+  onConnectionChange,
+  onStateInit,
+  onTimerUpdate,
+  onDrawingUpdate,
+  onDrawingStart,
+  onDrawingComplete,
+  onGalleryUpdate,
+  calculateTimeRemaining
+} from '../../services/socket'
 import './Hero.css'
 
-// Wobbly letter component
-function WobblyLetter({ children, seed = 0 }) {
-  const rotation = (Math.sin(seed * 1.5) * 4)
-  const yShift = (Math.cos(seed * 2) * 2)
-  return (
-    <span
-      className="wobbly-letter"
-      style={{
-        transform: `rotate(${rotation}deg) translateY(${yShift}px)`,
-      }}
-    >
-      {children}
-    </span>
-  )
-}
-
-// Convert text to wobbly letters
-function WobblyText({ text, className = '' }) {
-  return (
-    <span className={`wobbly-text ${className}`}>
-      {text.split('').map((char, i) => (
-        <WobblyLetter key={i} seed={i}>
-          {char === ' ' ? '\u00A0' : char}
-        </WobblyLetter>
-      ))}
-    </span>
-  )
-}
-
-// Timer display
-function Timer({ seconds }) {
+// Format time as MM:SS
+const formatTime = (seconds) => {
   const mins = Math.floor(seconds / 60)
   const secs = seconds % 60
-  const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`
-
-  return (
-    <div className="timer-container">
-      <span className="timer-label">
-        <WobblyText text="next drawing in" />
-      </span>
-      <div className="timer-display">
-        {timeStr.split('').map((char, i) => (
-          <span
-            key={i}
-            className="timer-char"
-            style={{
-              transform: `rotate(${(Math.sin(i * 2) * 3)}deg)`,
-            }}
-          >
-            {char}
-          </span>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// Doodles
-function Doodles() {
-  return (
-    <div className="doodles" aria-hidden="true">
-      <svg className="doodle sun" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="18" fill="#fff3b0" stroke="#e6c200" strokeWidth="3"/>
-        {[...Array(8)].map((_, i) => (
-          <line
-            key={i}
-            x1="50" y1="50"
-            x2={50 + Math.cos(i * Math.PI / 4) * 35}
-            y2={50 + Math.sin(i * Math.PI / 4) * 35}
-            stroke="#e6c200"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        ))}
-      </svg>
-
-      <svg className="doodle cloud" viewBox="0 0 100 50">
-        <ellipse cx="30" cy="35" rx="20" ry="14" fill="#d4e8ff" stroke="#a8d4ff" strokeWidth="2"/>
-        <ellipse cx="50" cy="30" rx="24" ry="18" fill="#d4e8ff" stroke="#a8d4ff" strokeWidth="2"/>
-        <ellipse cx="72" cy="36" rx="18" ry="13" fill="#d4e8ff" stroke="#a8d4ff" strokeWidth="2"/>
-      </svg>
-
-      <svg className="doodle star" viewBox="0 0 50 50">
-        <path
-          d="M25 8 L28 20 L40 20 L30 28 L34 40 L25 32 L16 40 L20 28 L10 20 L22 20 Z"
-          fill="#fff3b0"
-          stroke="#e6c200"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        />
-      </svg>
-
-      <svg className="doodle heart" viewBox="0 0 50 50">
-        <path
-          d="M25 42 C12 30 6 22 12 14 C18 8 25 14 25 14 C25 14 32 8 38 14 C44 22 38 30 25 42"
-          fill="#ffd4d4"
-          stroke="#ffaaaa"
-          strokeWidth="2"
-        />
-      </svg>
-
-      <svg className="doodle squiggle" viewBox="0 0 100 30">
-        <path
-          d="M5 15 Q25 5 45 15 T85 15"
-          fill="none"
-          stroke="#d4ffd4"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-      </svg>
-    </div>
-  )
+  return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
 export default function Hero() {
+  const [timeLeft, setTimeLeft] = useState(60)
+  const [isDrawing, setIsDrawing] = useState(false)
   const [gallery, setGallery] = useState([])
+  const [selectedImage, setSelectedImage] = useState(null)
   const [currentDrawing, setCurrentDrawing] = useState(null)
-  const [timeLeft, setTimeLeft] = useState(300)
-  const [isCreating, setIsCreating] = useState(false)
-  const currentIndex = useRef(0)
+  const [isConnected, setIsConnected] = useState(false)
+  const [userProfile, setUserProfile] = useState({ username: '', avatar: null })
 
-  const artworks = [
-    '/drawings/drawing-1.jpg',
-    '/drawings/drawing-2.jpg',
-    '/drawings/drawing-3.jpg',
-  ]
+  const noahRef = useRef(null)
+  const timerDataRef = useRef(null)
 
-  // Countdown timer with drawing flow
+  // Handle profile changes
+  const handleProfileChange = useCallback((profile) => {
+    setUserProfile(profile)
+  }, [])
+
+  // Initialize Socket.io connection
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          setIsCreating(true)
+    // Initialize socket
+    initSocket()
 
-          setTimeout(() => {
-            const newDrawing = {
-              src: artworks[currentIndex.current % artworks.length],
-              id: Date.now(),
-              number: currentIndex.current + 1,
-            }
-            setCurrentDrawing(newDrawing)
-            currentIndex.current += 1
-            setIsCreating(false)
+    // Subscribe to connection status
+    const unsubConnection = onConnectionChange((connected) => {
+      setIsConnected(connected)
+    })
 
-            setTimeout(() => {
-              setGallery(prev => [...prev, {
-                ...newDrawing,
-                rotation: (Math.random() - 0.5) * 5,
-              }])
-            }, 5000)
+    // Subscribe to initial state
+    const unsubInit = onStateInit((state) => {
+      if (state.timer) {
+        timerDataRef.current = state.timer
+        setTimeLeft(calculateTimeRemaining(state.timer))
+        setIsDrawing(state.timer.isDrawing || false)
+      }
+      if (state.currentDrawing) {
+        setCurrentDrawing(state.currentDrawing)
+      }
+      if (state.gallery) {
+        setGallery(state.gallery)
+      }
+      setIsConnected(true)
+    })
 
-          }, 2000)
+    // Subscribe to timer updates
+    const unsubTimer = onTimerUpdate((timerData) => {
+      timerDataRef.current = timerData
+      setTimeLeft(calculateTimeRemaining(timerData))
+      setIsDrawing(timerData.isDrawing || false)
+    })
 
-          return 300
-        }
-        return prev - 1
-      })
+    // Subscribe to drawing updates
+    const unsubDrawing = onDrawingUpdate((drawing) => {
+      setCurrentDrawing(drawing)
+    })
+
+    // Subscribe to drawing start
+    const unsubDrawingStart = onDrawingStart(() => {
+      setIsDrawing(true)
+      if (noahRef.current) {
+        noahRef.current.startDrawing?.()
+      }
+    })
+
+    // Subscribe to drawing complete
+    const unsubDrawingComplete = onDrawingComplete(() => {
+      if (noahRef.current) {
+        noahRef.current.stopDrawing?.()
+        noahRef.current.celebrate?.()
+      }
+    })
+
+    // Subscribe to gallery updates
+    const unsubGallery = onGalleryUpdate((galleryData) => {
+      setGallery(galleryData)
+    })
+
+    // Timer tick interval
+    const timerInterval = setInterval(() => {
+      if (timerDataRef.current) {
+        setTimeLeft(calculateTimeRemaining(timerDataRef.current))
+      }
     }, 1000)
 
-    return () => clearInterval(timer)
+    return () => {
+      unsubConnection()
+      unsubInit()
+      unsubTimer()
+      unsubDrawing()
+      unsubDrawingStart()
+      unsubDrawingComplete()
+      unsubGallery()
+      clearInterval(timerInterval)
+    }
+  }, [])
+
+  // Download image function
+  const handleDownload = useCallback((image, name) => {
+    const link = document.createElement('a')
+    link.href = image
+    link.download = `noah-drawing-${name.replace(/\s+/g, '-')}.png`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }, [])
+
+  // Close modal
+  const closeModal = useCallback(() => {
+    setSelectedImage(null)
   }, [])
 
   return (
     <div className="noah-world">
-      {/* Background */}
-      <Doodles />
-      <div className="paper-texture" />
+      {/* User Profile */}
+      <UserProfile onProfileChange={handleProfileChange} />
 
-      {/* Timer - Top Center */}
-      <div className="timer-top">
-        <Timer seconds={timeLeft} />
-        {isCreating && (
-          <div className="creating-note" style={{ transform: 'rotate(1deg)' }}>
-            <WobblyText text="noah is drawing..." />
-          </div>
+      {/* Background decorations */}
+      <div className="background-decorations">
+        <div className="cloud cloud-1" />
+        <div className="cloud cloud-2" />
+        <div className="cloud cloud-3" />
+      </div>
+
+      {/* Header */}
+      <header className="header">
+        <h1 className="title">Noah Universe</h1>
+        <p className="subtitle">Watch me draw cool stuff!</p>
+        {!isConnected && (
+          <p className="connection-status">Connecting to server...</p>
         )}
-      </div>
+      </header>
 
-      {/* NOAH - 3D Character - RIGHT SIDE */}
-      <div className="noah-stage">
-        <Scene
-          className="noah-canvas"
-          style={{ width: '100%', height: '100%' }}
-        />
-        <div className="noah-name-tag">
-          <WobblyText text="noah" />
-        </div>
-        <div className="noah-hint">
-          <WobblyText text="click me!" />
-        </div>
-      </div>
+      {/* Main content */}
+      <main className="main-content">
+        {/* Noah section */}
+        <section className="noah-section">
+          <div className="noah-container">
+            <Scene
+              ref={noahRef}
+              className="noah-canvas"
+              style={{ width: '100%', height: '100%' }}
+            />
 
-      {/* Main Content - Left side */}
-      <div className="main-content">
-        {/* Small intro */}
-        <div className="left-info">
-          <div className="greeting" style={{ transform: 'rotate(-1.5deg)' }}>
-            <WobblyText text="hi" className="big-text" />
+            {/* Name tag */}
+            <div className="name-tag">Noah</div>
           </div>
-          <h1 className="title">
-            <span style={{ transform: 'rotate(0.8deg)', display: 'block' }}>
-              <WobblyText text="my name is" />
-            </span>
-            <span className="name-box">
-              <WobblyText text="noah" className="name" />
-            </span>
-          </h1>
-          <div className="about-lines">
-            <p style={{ transform: 'rotate(-0.5deg)' }}>
-              <WobblyText text="i like to draw" />
-            </p>
-            <p style={{ transform: 'rotate(0.3deg)', marginLeft: '10px' }}>
-              <WobblyText text="watch me make art" />
-            </p>
-          </div>
-        </div>
 
-        {/* Drawing Area - CENTER, BIGGEST */}
-        <div className="drawing-area">
+          {/* Timer */}
+          <div className="timer-box">
+            <span className="timer-label">Next drawing in</span>
+            <span className="timer-value">{formatTime(timeLeft)}</span>
+          </div>
+
+        </section>
+
+        {/* Drawing section */}
+        <section className="drawing-section">
+          <div className="drawing-header">
+            <h2>My Drawing</h2>
+            {isDrawing && <span className="drawing-indicator">Drawing in progress...</span>}
+          </div>
           <div className="drawing-frame">
-            <div className="drawing-title">
-              <WobblyText text="my latest drawing" />
-            </div>
-            <div className="drawing-canvas">
-              {!currentDrawing ? (
-                <div className="empty-canvas">
-                  <p style={{ transform: 'rotate(0.5deg)' }}>
-                    <WobblyText text="nothing here yet" />
-                  </p>
-                  <p className="sub-note" style={{ transform: 'rotate(-0.3deg)' }}>
-                    <WobblyText text="wait for the timer" />
-                  </p>
-                </div>
+            {/* Display area for drawings */}
+            <div className="drawing-display">
+              {currentDrawing ? (
+                <img
+                  src={currentDrawing}
+                  alt="Noah's drawing"
+                  className={`current-drawing ${isDrawing ? 'hidden' : 'revealed'}`}
+                />
               ) : (
-                <div className="current-drawing" key={currentDrawing.id}>
-                  <img src={currentDrawing.src} alt={`drawing ${currentDrawing.number}`} />
-                  <span className="drawing-number">
-                    <WobblyText text={`#${currentDrawing.number}`} />
-                  </span>
+                <div className="drawing-placeholder">
+                  <span>Waiting for Noah to draw...</span>
                 </div>
               )}
             </div>
+            {/* Blur overlay with scribbles while drawing */}
+            {isDrawing && (
+              <div className="drawing-blur-overlay">
+                <div className="scribble-animation">
+                  <svg viewBox="0 0 200 150" className="scribble-svg">
+                    <path className="scribble-line scribble-1" d="M20,30 Q50,10 80,35 T140,25" />
+                    <path className="scribble-line scribble-2" d="M30,60 Q70,40 100,70 T160,50" />
+                    <path className="scribble-line scribble-3" d="M25,90 Q60,70 90,95 T150,85" />
+                    <path className="scribble-line scribble-4" d="M40,120 Q80,100 120,125 T180,110" />
+                    <circle className="scribble-dot scribble-5" cx="50" cy="45" r="3" />
+                    <circle className="scribble-dot scribble-6" cx="120" cy="75" r="4" />
+                    <circle className="scribble-dot scribble-7" cx="80" cy="110" r="3" />
+                  </svg>
+                </div>
+                <p className="drawing-secret-text">Shhh... Noah is drawing!</p>
+              </div>
+            )}
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Gallery - BOTTOM, FULL WIDTH */}
-      <div className="gallery-section">
-        <div className="gallery-header">
-          <h2 style={{ transform: 'rotate(-0.8deg)' }}>
-            <WobblyText text="all my drawings" />
-          </h2>
-          {gallery.length > 0 && (
-            <span className="count">
-              <WobblyText text={`(${gallery.length} so far)`} />
-            </span>
-          )}
-        </div>
+        {/* Chat section */}
+        <section className="chat-section">
+          <Chat userProfile={userProfile} />
+        </section>
+      </main>
 
-        <div className="gallery-floor">
-          {gallery.length === 0 ? (
-            <div className="gallery-empty">
-              <p style={{ transform: 'rotate(0.5deg)' }}>
-                <WobblyText text="drawings will appear here" />
-              </p>
-            </div>
-          ) : (
-            gallery.map((item, index) => (
+      {/* About Noah Section */}
+      <section className="about-section">
+        <h2 className="about-title">Meet Noah</h2>
+        <p className="about-text">
+          Noah is a little artist who loves to draw! Every minute he creates a new masterpiece just for you.
+          Watch him work his magic and collect his drawings. Who knows what he'll draw next?
+        </p>
+      </section>
+
+      {/* Gallery */}
+      <section className="gallery-section">
+        <h2 className="gallery-title">My Gallery</h2>
+        {gallery.length === 0 ? (
+          <p className="gallery-empty">No drawings yet! Wait for the timer to see me draw!</p>
+        ) : (
+          <div className="gallery-grid">
+            {gallery.map((item) => (
               <div
                 key={item.id}
                 className="gallery-item"
-                style={{
-                  animationDelay: `${index * 0.05}s`,
-                }}
+                onClick={() => setSelectedImage(item)}
               >
-                <img src={item.src} alt={`drawing ${item.number}`} />
-                <span className="item-number">
-                  <WobblyText text={`${item.number}`} />
-                </span>
+                <img src={item.image} alt={item.name} />
+                <div className="gallery-item-info">
+                  <span className="gallery-item-name">{item.name}</span>
+                  <span className="gallery-item-time">
+                    {new Date(item.timestamp).toLocaleTimeString()}
+                  </span>
+                </div>
               </div>
-            ))
-          )}
-        </div>
-      </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       {/* Footer */}
-      <div className="footer-message">
-        <WobblyText text="thanks for watching me draw" />
-      </div>
+      <footer className="footer">
+        <p>Made with love by Noah</p>
+        <p className="credit">
+          3D Model "Kid Boy" by oLric (sketchfab.com/selimalsk) licensed under CC-BY-4.0
+        </p>
+      </footer>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={closeModal}>×</button>
+            <img src={selectedImage.image} alt={selectedImage.name} className="modal-image" />
+            <div className="modal-info">
+              <h3 className="modal-title">{selectedImage.name}</h3>
+              <p className="modal-time">Created at {new Date(selectedImage.timestamp).toLocaleTimeString()}</p>
+              <button
+                className="modal-download"
+                onClick={() => handleDownload(selectedImage.image, selectedImage.name)}
+              >
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
