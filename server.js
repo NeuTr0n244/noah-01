@@ -11,6 +11,55 @@ app.get('/', (req, res) => {
   res.json({ status: 'Noah Universe Server Running', drawings: 84 })
 })
 
+// Reset endpoint - Protected with secret key
+const RESET_KEY = 'noah123'
+
+app.get('/api/reset', (req, res) => {
+  const { key } = req.query
+
+  if (key !== RESET_KEY) {
+    return res.status(401).json({ error: 'Invalid key' })
+  }
+
+  // Reset all state
+  state.currentImageIndex = 0
+  state.currentDrawing = null
+  state.previousDrawing = null
+  state.previousDrawingNumber = 0
+  state.gallery = []
+  state.chat = []
+  state.timer = {
+    startedAt: Date.now(),
+    duration: 60,
+    isDrawing: false
+  }
+
+  // Notify all connected clients
+  io.emit('state:init', {
+    timer: state.timer,
+    currentDrawing: state.currentDrawing,
+    gallery: state.gallery,
+    chat: []
+  })
+
+  console.log('[Server] RESET: All data cleared!')
+  console.log('[Server] currentImageIndex = 0')
+  console.log('[Server] gallery = [] (empty)')
+  console.log('[Server] chat = [] (empty)')
+  console.log('[Server] timer reset to 60 seconds')
+
+  res.json({
+    success: true,
+    message: 'Server reset complete!',
+    state: {
+      currentImageIndex: state.currentImageIndex,
+      galleryItems: state.gallery.length,
+      chatMessages: state.chat.length,
+      timerDuration: state.timer.duration
+    }
+  })
+})
+
 const httpServer = createServer(app)
 const io = new Server(httpServer, {
   cors: {
