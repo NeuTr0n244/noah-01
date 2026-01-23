@@ -5,11 +5,11 @@ const SocketContext = createContext(null)
 
 const SOCKET_URL = 'http://localhost:3001'
 const MAX_RETRY_ATTEMPTS = 5
-const RETRY_DELAY = 3000
 const TIMER_DURATION = 60
 const CONNECTION_TIMEOUT = 15000
+const TOTAL_DRAWINGS = 84
 
-// Local drawings fallback
+// Local drawings fallback - SEQUENTIAL ORDER (same as server)
 const LOCAL_DRAWINGS = [
   '/drawings/364183754_1317346842542997_5702108762867635901_n.jpg',
   '/drawings/364949346_957302068900963_5824655554871862488_n.jpg',
@@ -29,101 +29,59 @@ const LOCAL_DRAWINGS = [
 ]
 
 export function SocketProvider({ children }) {
-  // Connection state
-  const [connectionStatus, setConnectionStatus] = useState('connecting') // 'connecting', 'connected', 'failed', 'offline'
+  const [connectionStatus, setConnectionStatus] = useState('connecting')
   const [retryCount, setRetryCount] = useState(0)
   const [showConnectedMessage, setShowConnectedMessage] = useState(false)
-
-  // App state
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION)
   const [isDrawing, setIsDrawing] = useState(false)
   const [currentDrawing, setCurrentDrawing] = useState(null)
   const [gallery, setGallery] = useState([])
 
-  // Refs
   const socketRef = useRef(null)
-  const timerIntervalRef = useRef(null)
   const localTimerRef = useRef(null)
   const noahActionsRef = useRef(null)
-  const usedImagesRef = useRef(new Set())
-  const artCounterRef = useRef(0)
+  const currentIndexRef = useRef(0)  // Sequential index (0-14 for local, 0-83 for server)
   const isOfflineMode = useRef(false)
 
-  // Load saved state from localStorage
-  useEffect(() => {
-    try {
-      const savedGallery = localStorage.getItem('noah_gallery')
-      const savedCounter = localStorage.getItem('noah_art_counter')
-      const savedUsedImages = localStorage.getItem('noah_used_images')
-
-      if (savedGallery) {
-        setGallery(JSON.parse(savedGallery))
-      }
-      if (savedCounter) {
-        artCounterRef.current = parseInt(savedCounter, 10)
-      }
-      if (savedUsedImages) {
-        usedImagesRef.current = new Set(JSON.parse(savedUsedImages))
-      }
-      console.log('[Socket] Loaded saved state from localStorage')
-    } catch (e) {
-      console.log('[Socket] No saved state found')
-    }
-  }, [])
-
-  // Save state to localStorage
-  const saveToLocalStorage = useCallback((newGallery) => {
-    try {
-      localStorage.setItem('noah_gallery', JSON.stringify(newGallery))
-      localStorage.setItem('noah_art_counter', artCounterRef.current.toString())
-      localStorage.setItem('noah_used_images', JSON.stringify([...usedImagesRef.current]))
-    } catch (e) {
-      console.error('[Socket] Failed to save to localStorage:', e)
-    }
-  }, [])
-
-  // Get next local drawing (no repeats)
-  const getNextLocalDrawing = useCallback(() => {
-    if (usedImagesRef.current.size >= LOCAL_DRAWINGS.length) {
-      console.log('[Local] All images shown, resetting')
-      usedImagesRef.current.clear()
-    }
-
-    const available = LOCAL_DRAWINGS.filter(img => !usedImagesRef.current.has(img))
-    const selected = available[Math.floor(Math.random() * available.length)]
-    usedImagesRef.current.add(selected)
-
-    return selected
-  }, [])
-
-  // Local drawing cycle (offline mode)
+  // Local drawing cycle (offline mode) - SEQUENTIAL
   const doLocalDrawing = useCallback(() => {
-    console.log('[Local] Starting local drawing...')
+    console.log('[Local] Starting drawing...')
+    console.log(`[Local] Current index: ${currentIndexRef.current}`)
     setIsDrawing(true)
 
     if (noahActionsRef.current?.startDrawing) {
       noahActionsRef.current.startDrawing()
     }
 
-    // Simulate drawing time
     setTimeout(() => {
-      const newDrawing = getNextLocalDrawing()
-      artCounterRef.current++
+      // Get drawing by INDEX (sequential)
+      const newDrawing = LOCAL_DRAWINGS[currentIndexRef.current]
+      const drawingNumber = currentIndexRef.current + 1
 
+      console.log(`[Local] Selected: Drawing #${drawingNumber}`)
       setCurrentDrawing(newDrawing)
 
       const galleryItem = {
-        id: `local-${artCounterRef.current}-${Date.now()}`,
+        id: `drawing-${drawingNumber}`,
         image: newDrawing,
-        name: `Noah's Art #${artCounterRef.current}`,
+        name: `Noah's Art #${drawingNumber}`,
         timestamp: Date.now()
       }
 
       setGallery(prev => {
+        // Check for duplicate
+        if (prev.some(item => item.id === galleryItem.id)) {
+          console.log(`[Local] Drawing #${drawingNumber} already exists, skipping`)
+          return prev
+        }
         const newGallery = [galleryItem, ...prev].slice(0, 20)
-        saveToLocalStorage(newGallery)
+        console.log(`[Local] Added Drawing #${drawingNumber} to gallery`)
         return newGallery
       })
+
+      // Advance to next index (sequential, wraps around)
+      currentIndexRef.current = (currentIndexRef.current + 1) % LOCAL_DRAWINGS.length
+      console.log(`[Local] Next index: ${currentIndexRef.current}`)
 
       setIsDrawing(false)
 
@@ -133,10 +91,8 @@ export function SocketProvider({ children }) {
       if (noahActionsRef.current?.celebrate) {
         noahActionsRef.current.celebrate()
       }
-
-      console.log('[Local] Drawing complete:', galleryItem.name)
     }, 3000 + Math.random() * 2000)
-  }, [getNextLocalDrawing, saveToLocalStorage])
+  }, [])
 
   // Start local timer (offline mode)
   const startLocalTimer = useCallback(() => {
@@ -145,7 +101,6 @@ export function SocketProvider({ children }) {
     console.log('[Local] Starting local timer')
     isOfflineMode.current = true
     let timeRemaining = TIMER_DURATION
-
     setTimeLeft(timeRemaining)
 
     localTimerRef.current = setInterval(() => {
@@ -175,7 +130,6 @@ export function SocketProvider({ children }) {
     console.log('[Socket] Attempting to connect...')
     setConnectionStatus('connecting')
 
-    // Clean up existing socket
     if (socketRef.current) {
       socketRef.current.disconnect()
       socketRef.current = null
@@ -193,20 +147,12 @@ export function SocketProvider({ children }) {
 
     socket.on('connect', () => {
       console.log('[Socket] Connected successfully!')
-
-      // Immediately update status
       setConnectionStatus('connected')
       setRetryCount(0)
-
-      // Stop local timer if running
       stopLocalTimer()
       isOfflineMode.current = false
-
-      // Show connected message briefly
       setShowConnectedMessage(true)
-      setTimeout(() => {
-        setShowConnectedMessage(false)
-      }, 2000)
+      setTimeout(() => setShowConnectedMessage(false), 2000)
     })
 
     socket.on('state:init', (state) => {
@@ -223,14 +169,8 @@ export function SocketProvider({ children }) {
         setCurrentDrawing(state.currentDrawing)
       }
 
-      if (state.gallery && state.gallery.length > 0) {
+      if (state.gallery) {
         setGallery(state.gallery)
-        // Update local counter to match server
-        const maxNum = state.gallery.reduce((max, item) => {
-          const match = item.name.match(/#(\d+)/)
-          return match ? Math.max(max, parseInt(match[1], 10)) : max
-        }, 0)
-        artCounterRef.current = maxNum
       }
     })
 
@@ -265,13 +205,6 @@ export function SocketProvider({ children }) {
 
     socket.on('gallery:update', (galleryData) => {
       setGallery(galleryData)
-      // Update local counter
-      const maxNum = galleryData.reduce((max, item) => {
-        const match = item.name.match(/#(\d+)/)
-        return match ? Math.max(max, parseInt(match[1], 10)) : max
-      }, 0)
-      artCounterRef.current = maxNum
-      saveToLocalStorage(galleryData)
     })
 
     socket.on('disconnect', () => {
@@ -283,24 +216,20 @@ export function SocketProvider({ children }) {
 
     socket.on('connect_error', (error) => {
       console.error('[Socket] Connection error:', error.message)
-
       setRetryCount(prev => {
         const newCount = prev + 1
         console.log(`[Socket] Retry attempt ${newCount}/${MAX_RETRY_ATTEMPTS}`)
-
         if (newCount >= MAX_RETRY_ATTEMPTS) {
           console.log('[Socket] Max retries reached, switching to offline mode')
           setConnectionStatus('failed')
           startLocalTimer()
-          return newCount
         }
-
         return newCount
       })
     })
 
     return socket
-  }, [connectionStatus, stopLocalTimer, startLocalTimer, saveToLocalStorage])
+  }, [connectionStatus, stopLocalTimer, startLocalTimer])
 
   // Manual retry
   const retry = useCallback(() => {
@@ -312,14 +241,12 @@ export function SocketProvider({ children }) {
 
   // Initialize connection
   useEffect(() => {
-    console.log('[Socket] Initializing connection...')
+    console.log('[Socket] Initializing...')
     const socket = connectToServer()
 
-    // Fallback: if not connected after timeout, start local timer
     const fallbackTimeout = setTimeout(() => {
-      // Check the actual socket connection state, not React state
       if (!socketRef.current?.connected && !localTimerRef.current) {
-        console.log('[Socket] Connection timeout, starting local timer as fallback')
+        console.log('[Socket] Connection timeout, starting local timer')
         setConnectionStatus('offline')
         startLocalTimer()
       }
@@ -327,14 +254,11 @@ export function SocketProvider({ children }) {
 
     return () => {
       clearTimeout(fallbackTimeout)
-      if (socket) {
-        socket.disconnect()
-      }
+      if (socket) socket.disconnect()
       stopLocalTimer()
     }
-  }, []) // Only run once on mount
+  }, [])
 
-  // Register Noah 3D actions
   const registerNoahActions = useCallback((actions) => {
     noahActionsRef.current = actions
   }, [])
@@ -348,8 +272,7 @@ export function SocketProvider({ children }) {
     currentDrawing,
     gallery,
     registerNoahActions,
-    retry,
-    isOfflineMode: isOfflineMode.current
+    retry
   }
 
   return (
