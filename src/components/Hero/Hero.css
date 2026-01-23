@@ -154,6 +154,35 @@
   border-radius: 30px 10px 25px 15px;
 }
 
+.noah-hint {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%) rotate(2deg);
+  font-family: 'Indie Flower', cursive;
+  font-size: 0.9rem;
+  color: #888;
+  background: #fff3b0;
+  padding: 4px 12px;
+  border: 2px dashed #e6c200;
+  border-radius: 15px 25px 20px 30px;
+  animation: hint-bounce 2s ease-in-out infinite;
+  opacity: 0.9;
+}
+
+@keyframes hint-bounce {
+  0%, 100% {
+    transform: translateX(-50%) rotate(2deg) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) rotate(2deg) translateY(-5px);
+  }
+}
+
+.noah-canvas {
+  pointer-events: auto;
+}
+
 /* ============================================
    MAIN CONTENT AREA
    ============================================ */
@@ -234,19 +263,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
+  min-height: 550px;
   margin: 20px 0;
 }
 
 .drawing-frame {
   width: 100%;
-  max-width: 700px;
-  min-height: 450px;
+  max-width: 950px;
+  min-height: 600px;
   background: white;
   border: 4px solid #888;
   border-radius: 30px 60px 40px 50px;
   box-shadow: 8px 8px 0 #ddd;
-  padding: 25px;
+  padding: 30px;
   position: relative;
   transform: rotate(-0.5deg);
 }
@@ -275,7 +304,7 @@
 
 .drawing-canvas {
   width: 100%;
-  min-height: 350px;
+  min-height: 480px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -311,7 +340,7 @@
 
 .current-drawing img {
   max-width: 100%;
-  max-height: 380px;
+  max-height: 520px;
   border: 3px solid #ddd;
   border-radius: 15px 25px 20px 30px;
   box-shadow: 5px 5px 0 #eee;

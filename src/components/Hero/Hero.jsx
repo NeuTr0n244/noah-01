@@ -1,25 +1,6 @@
-import { useState, useEffect, Suspense, useRef } from 'react'
-import { Canvas } from '@react-three/fiber'
-import { Html } from '@react-three/drei'
-import Noah from './Noah'
+import { useState, useEffect, useRef } from 'react'
+import { Scene } from '../Noah3D'
 import './Hero.css'
-
-// Loading fallback
-function LoadingFallback() {
-  return (
-    <Html center>
-      <div style={{
-        fontFamily: 'Patrick Hand, cursive',
-        fontSize: '1.1rem',
-        color: '#888',
-        textAlign: 'center',
-        padding: '15px'
-      }}>
-        loading...
-      </div>
-    </Html>
-  )
-}
 
 // Wobbly letter component
 function WobblyLetter({ children, seed = 0 }) {
@@ -136,9 +117,9 @@ function Doodles() {
 }
 
 export default function Hero() {
-  const [gallery, setGallery] = useState([]) // All completed drawings
-  const [currentDrawing, setCurrentDrawing] = useState(null) // Drawing being shown in main area
-  const [timeLeft, setTimeLeft] = useState(300) // 5 minutes
+  const [gallery, setGallery] = useState([])
+  const [currentDrawing, setCurrentDrawing] = useState(null)
+  const [timeLeft, setTimeLeft] = useState(300)
   const [isCreating, setIsCreating] = useState(false)
   const currentIndex = useRef(0)
 
@@ -153,10 +134,8 @@ export default function Hero() {
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
-          // Time's up - start creating
           setIsCreating(true)
 
-          // After 2 seconds, show the new drawing in main area
           setTimeout(() => {
             const newDrawing = {
               src: artworks[currentIndex.current % artworks.length],
@@ -167,7 +146,6 @@ export default function Hero() {
             currentIndex.current += 1
             setIsCreating(false)
 
-            // After 5 seconds of showing, move to gallery
             setTimeout(() => {
               setGallery(prev => [...prev, {
                 ...newDrawing,
@@ -177,7 +155,7 @@ export default function Hero() {
 
           }, 2000)
 
-          return 300 // Reset to 5 minutes
+          return 300
         }
         return prev - 1
       })
@@ -204,23 +182,15 @@ export default function Hero() {
 
       {/* NOAH - 3D Character - RIGHT SIDE */}
       <div className="noah-stage">
-        <Canvas
-          camera={{
-            position: [0, 0, 5],
-            fov: 45,
-            near: 0.1,
-            far: 1000
-          }}
-          dpr={[1, 2]}
-          gl={{ antialias: true, alpha: true }}
-          style={{ background: 'transparent' }}
-        >
-          <Suspense fallback={<LoadingFallback />}>
-            <Noah isCreating={isCreating} />
-          </Suspense>
-        </Canvas>
+        <Scene
+          className="noah-canvas"
+          style={{ width: '100%', height: '100%' }}
+        />
         <div className="noah-name-tag">
           <WobblyText text="noah" />
+        </div>
+        <div className="noah-hint">
+          <WobblyText text="click me!" />
         </div>
       </div>
 
