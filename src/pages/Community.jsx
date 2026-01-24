@@ -7,16 +7,20 @@ export default function Community() {
 
       <div className="community-card">
         <div className="social-buttons">
-          <a href="#" className="social-btn x-btn" onClick={(e) => {
-            e.preventDefault()
-            alert('Coming soon!')
-          }}>
+          <a
+            href="https://x.com/Noahdrawing"
+            className="social-btn x-btn"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Follow on X
           </a>
-          <a href="#" className="social-btn community-btn" onClick={(e) => {
-            e.preventDefault()
-            alert('Coming soon!')
-          }}>
+          <a
+            href="https://x.com/i/communities/2014849784603980233"
+            className="social-btn community-btn"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Community
           </a>
         </div>
