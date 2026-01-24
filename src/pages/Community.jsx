@@ -27,7 +27,7 @@ export default function Community() {
 
         <div className="contract-section">
           <span className="contract-label">Contract Address</span>
-          <span className="contract-value">SOON</span>
+          <span className="contract-value">FwzCYQyDn8EEjAdCxieQnBwZnipTNYn2tuUBypptpump</span>
         </div>
       </div>
     </div>
