@@ -1,14 +1,21 @@
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { useGLTF, Environment } from '@react-three/drei'
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 
 const GLB_URL = 'https://pub-86fa2dc7ce2a48b0a619b665a49cf94a.r2.dev/saladesenho.glb'
 
 function Model() {
-  const { scene } = useGLTF(GLB_URL)
+  const { scene, cameras } = useGLTF(GLB_URL)
+  const { set, size } = useThree()
 
-  // NÃO modificar posição, rotação ou escala!
-  // O modelo já está correto no arquivo
+  useEffect(() => {
+    if (cameras && cameras.length > 0) {
+      const cam = cameras[0]
+      cam.aspect = size.width / size.height
+      cam.updateProjectionMatrix()
+      set({ camera: cam })
+    }
+  }, [cameras, set, size])
 
   return <primitive object={scene} />
 }
@@ -25,14 +32,7 @@ export default function Scene3D() {
       height: '100vh',
       zIndex: 0
     }}>
-      <Canvas
-        camera={{
-          position: [5, 3, 5],
-          fov: 50,
-          near: 0.1,
-          far: 1000
-        }}
-      >
+      <Canvas gl={{ antialias: true }}>
         <Suspense fallback={null}>
           <Environment preset="apartment" />
           <Model />
