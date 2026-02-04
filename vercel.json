@@ -4,7 +4,25 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": null,
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+  "routes": [
+    {
+      "src": "/models/.*",
+      "dest": "/$0"
+    },
+    {
+      "src": "/drawings/.*",
+      "dest": "/$0"
+    },
+    {
+      "src": "/assets/.*",
+      "dest": "/$0"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
   ]
 }
