@@ -1,59 +1,33 @@
-import { Suspense, useEffect } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
-import { useGLTF, Html } from '@react-three/drei'
+import { useGLTF } from '@react-three/drei'
+import { useEffect, Suspense } from 'react'
+import * as THREE from 'three'
 
-function LoadingScreen() {
-  return (
-    <Html center>
-      <div
-        style={{
-          fontFamily: "'Caveat', cursive",
-          fontSize: '2rem',
-          fontWeight: 600,
-          color: '#F5C842',
-          textAlign: 'center',
-          padding: '30px',
-          background: 'rgba(0, 0, 0, 0.7)',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '20px',
-          border: '2px solid rgba(245, 200, 66, 0.3)',
-        }}
-      >
-        Loading Noah's Room...
-      </div>
-    </Html>
-  )
-}
+const GLB_URL = 'https://pub-86fa2dc7ce2a48b0a619b665a49cf94a.r2.dev/saladesenho.glb'
 
 function Model() {
-  const { scene, cameras } = useGLTF('https://pub-86fa2dc7ce2a48b0a619b665a49cf94a.r2.dev/saladesenho.glb')
-  const { set, size } = useThree()
+  const { scene, cameras, animations } = useGLTF(GLB_URL)
+  const { set, gl } = useThree()
 
-  // Use the camera from the GLB file
   useEffect(() => {
+    // Usar câmera do GLB se existir
     if (cameras && cameras.length > 0) {
-      const camera = cameras[0]
-      camera.aspect = size.width / size.height
-      camera.updateProjectionMatrix()
-      set({ camera })
-    }
-  }, [cameras, set, size])
-
-  // Update camera aspect on window resize
-  useEffect(() => {
-    const handleResize = () => {
-      if (cameras && cameras.length > 0) {
-        cameras[0].aspect = window.innerWidth / window.innerHeight
-        cameras[0].updateProjectionMatrix()
-      }
+      const cam = cameras[0]
+      cam.aspect = window.innerWidth / window.innerHeight
+      cam.updateProjectionMatrix()
+      set({ camera: cam })
     }
 
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [cameras])
+    // Configurar encoding correto para cores
+    gl.outputEncoding = THREE.sRGBEncoding
+    gl.toneMapping = THREE.ACESFilmicToneMapping
+    gl.toneMappingExposure = 1.0
+  }, [cameras, set, gl])
 
   return <primitive object={scene} />
 }
+
+useGLTF.preload(GLB_URL)
 
 export default function Scene3D() {
   return (
@@ -66,28 +40,21 @@ export default function Scene3D() {
       zIndex: 0
     }}>
       <Canvas
-        dpr={[1, 2]}
         gl={{
           antialias: true,
           alpha: false,
-          powerPreference: 'high-performance',
-          toneMappingExposure: 1.5,
+          outputEncoding: THREE.sRGBEncoding,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.0
         }}
-        style={{ width: '100%', height: '100%' }}
+        onCreated={({ gl }) => {
+          gl.setClearColor('#000000')
+        }}
       >
-        {/* Lighting */}
-        <ambientLight intensity={1.5} />
-        <directionalLight position={[5, 10, 5]} intensity={2} castShadow />
-        <directionalLight position={[-5, 5, -5]} intensity={1} />
-        <hemisphereLight intensity={1} groundColor="#444444" />
-
-        <Suspense fallback={<LoadingScreen />}>
+        <Suspense fallback={null}>
           <Model />
         </Suspense>
       </Canvas>
     </div>
   )
 }
-
-// Preload the model
-useGLTF.preload('https://pub-86fa2dc7ce2a48b0a619b665a49cf94a.r2.dev/saladesenho.glb')
