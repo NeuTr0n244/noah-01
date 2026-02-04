@@ -1,0 +1,131 @@
+.ui-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ui-container {
+  width: 100%;
+  max-width: 500px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Header */
+.ui-header {
+  padding: 2rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.ui-logo {
+  font-family: var(--font-handwriting);
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  color: #F5C842;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Main content */
+.ui-main {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Footer */
+.ui-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.ui-footer-text {
+  font-family: var(--font-crayon);
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.5rem;
+}
+
+.ui-footer-credit {
+  font-family: var(--font-crayon);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .ui-container {
+    max-width: 450px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ui-overlay {
+    justify-content: center;
+  }
+
+  .ui-container {
+    width: 100%;
+    max-width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-left: none;
+  }
+
+  .ui-header {
+    padding: 1.5rem 1rem 0.75rem;
+  }
+
+  .ui-logo {
+    font-size: clamp(2rem, 6vw, 2.5rem);
+  }
+
+  .ui-main {
+    padding: 1rem;
+  }
+
+  .ui-footer {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ui-header {
+    padding: 1rem 0.75rem 0.5rem;
+  }
+
+  .ui-logo {
+    font-size: 2rem;
+  }
+
+  .ui-main {
+    padding: 0.75rem;
+  }
+
+  .ui-footer-text,
+  .ui-footer-credit {
+    font-size: 0.8rem;
+  }
+}

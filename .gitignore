@@ -1,12 +1,22 @@
-node_modules
-dist
-.DS_Store
-*.log
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+.vite/
+
+# Environment variables
 .env
 .env.local
-.vite
-.claude
-/scene.bin
-/scene.gltf
-nul
-public/models/noah desenho.glb
+.env.production
+
+# System files
+.DS_Store
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Claude
+.claude/

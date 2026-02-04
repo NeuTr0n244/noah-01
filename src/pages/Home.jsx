@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { useOutletContext } from 'react-router-dom'
-import { Scene } from '../components/Noah3D'
 import Chat from '../components/Chat/Chat'
 import { useSocket } from '../contexts/SocketContext'
 import './Home.css'
@@ -21,23 +20,10 @@ export default function Home() {
     isDrawing,
     currentDrawing,
     gallery,
-    registerNoahActions,
     retry
   } = useSocket()
 
   const [selectedImage, setSelectedImage] = useState(null)
-  const noahRef = useRef(null)
-
-  // Register Noah 3D model actions with the socket context
-  useEffect(() => {
-    if (noahRef.current) {
-      registerNoahActions({
-        startDrawing: () => noahRef.current?.startDrawing?.(),
-        stopDrawing: () => noahRef.current?.stopDrawing?.(),
-        celebrate: () => noahRef.current?.celebrate?.()
-      })
-    }
-  }, [registerNoahActions])
 
   // Download image function
   const handleDownload = useCallback((image, name) => {
@@ -83,69 +69,55 @@ export default function Home() {
     <div className="home-page">
       {renderConnectionStatus()}
 
-      {/* Main content */}
-      <div className="home-content">
-        {/* Noah section */}
-        <section className="noah-section">
-          <div className="noah-container">
-            <Scene
-              ref={noahRef}
-              className="noah-canvas"
-              style={{ width: '100%', height: '100%' }}
-            />
-            <div className="name-tag">Noah</div>
-          </div>
+      {/* Timer */}
+      <div className="timer-box">
+        <span className="timer-label">Next drawing in</span>
+        <span className="timer-value">{formatTime(timeLeft)}</span>
+      </div>
 
-          <div className="timer-box">
-            <span className="timer-label">Next drawing in</span>
-            <span className="timer-value">{formatTime(timeLeft)}</span>
-          </div>
-        </section>
-
-        {/* Drawing section */}
-        <section className="drawing-section">
-          <div className="drawing-header">
-            <h2>My Drawing</h2>
-            {isDrawing && <span className="drawing-indicator">Drawing in progress...</span>}
-          </div>
-          <div className="drawing-frame">
-            <div className="drawing-display">
-              {currentDrawing ? (
-                <img
-                  src={currentDrawing}
-                  alt="Noah's drawing"
-                  className={`current-drawing ${isDrawing ? 'hidden' : 'revealed'}`}
-                />
-              ) : (
-                <div className="drawing-placeholder">
-                  <span>Waiting for Noah to draw...</span>
-                </div>
-              )}
-            </div>
-            {isDrawing && (
-              <div className="drawing-blur-overlay">
-                <div className="scribble-animation">
-                  <svg viewBox="0 0 200 150" className="scribble-svg">
-                    <path className="scribble-line scribble-1" d="M20,30 Q50,10 80,35 T140,25" />
-                    <path className="scribble-line scribble-2" d="M30,60 Q70,40 100,70 T160,50" />
-                    <path className="scribble-line scribble-3" d="M25,90 Q60,70 90,95 T150,85" />
-                    <path className="scribble-line scribble-4" d="M40,120 Q80,100 120,125 T180,110" />
-                    <circle className="scribble-dot scribble-5" cx="50" cy="45" r="3" />
-                    <circle className="scribble-dot scribble-6" cx="120" cy="75" r="4" />
-                    <circle className="scribble-dot scribble-7" cx="80" cy="110" r="3" />
-                  </svg>
-                </div>
-                <p className="drawing-secret-text">Shhh... Noah is drawing!</p>
+      {/* Drawing section */}
+      <section className="drawing-section">
+        <div className="drawing-header">
+          <h2>My Drawing</h2>
+          {isDrawing && <span className="drawing-indicator">Drawing in progress...</span>}
+        </div>
+        <div className="drawing-frame">
+          <div className="drawing-display">
+            {currentDrawing ? (
+              <img
+                src={currentDrawing}
+                alt="Noah's drawing"
+                className={`current-drawing ${isDrawing ? 'hidden' : 'revealed'}`}
+              />
+            ) : (
+              <div className="drawing-placeholder">
+                <span>Waiting for Noah to draw...</span>
               </div>
             )}
           </div>
-        </section>
+          {isDrawing && (
+            <div className="drawing-blur-overlay">
+              <div className="scribble-animation">
+                <svg viewBox="0 0 200 150" className="scribble-svg">
+                  <path className="scribble-line scribble-1" d="M20,30 Q50,10 80,35 T140,25" />
+                  <path className="scribble-line scribble-2" d="M30,60 Q70,40 100,70 T160,50" />
+                  <path className="scribble-line scribble-3" d="M25,90 Q60,70 90,95 T150,85" />
+                  <path className="scribble-line scribble-4" d="M40,120 Q80,100 120,125 T180,110" />
+                  <circle className="scribble-dot scribble-5" cx="50" cy="45" r="3" />
+                  <circle className="scribble-dot scribble-6" cx="120" cy="75" r="4" />
+                  <circle className="scribble-dot scribble-7" cx="80" cy="110" r="3" />
+                </svg>
+              </div>
+              <p className="drawing-secret-text">Shhh... Noah is drawing!</p>
+            </div>
+          )}
+        </div>
+      </section>
 
-        {/* Chat section */}
-        <section className="chat-section">
-          <Chat userProfile={userProfile} />
-        </section>
-      </div>
+      {/* Chat section */}
+      <section className="chat-section">
+        <Chat userProfile={userProfile} />
+      </section>
 
       {/* Gallery */}
       <section className="gallery-section">
