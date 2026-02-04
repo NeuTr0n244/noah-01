@@ -1,9 +1,14 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "git lfs pull && npm run build",
   "outputDirectory": "dist",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": null,
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  },
   "routes": [
     {
       "src": "/models/.*",
