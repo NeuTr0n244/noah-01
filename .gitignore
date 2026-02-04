@@ -22,3 +22,4 @@ dist/
 .claude/
 
 .vercel
+public/models/*.glb
