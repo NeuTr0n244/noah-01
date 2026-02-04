@@ -1,11 +1,15 @@
 import { Canvas } from '@react-three/fiber'
-import { useGLTF, Environment, OrbitControls } from '@react-three/drei'
+import { useGLTF, Environment } from '@react-three/drei'
 import { Suspense } from 'react'
 
 const GLB_URL = 'https://pub-86fa2dc7ce2a48b0a619b665a49cf94a.r2.dev/saladesenho.glb'
 
 function Model() {
   const { scene } = useGLTF(GLB_URL)
+
+  // NÃO modificar posição, rotação ou escala!
+  // O modelo já está correto no arquivo
+
   return <primitive object={scene} />
 }
 
@@ -22,13 +26,16 @@ export default function Scene3D() {
       zIndex: 0
     }}>
       <Canvas
-        camera={{ position: [0, 2, 5], fov: 50 }}
-        gl={{ antialias: true }}
+        camera={{
+          position: [5, 3, 5],
+          fov: 50,
+          near: 0.1,
+          far: 1000
+        }}
       >
         <Suspense fallback={null}>
           <Environment preset="apartment" />
           <Model />
-          <OrbitControls />
         </Suspense>
       </Canvas>
     </div>
