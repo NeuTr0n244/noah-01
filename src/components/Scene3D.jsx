@@ -1,5 +1,5 @@
 import { Canvas, useThree } from '@react-three/fiber'
-import { useGLTF } from '@react-three/drei'
+import { useGLTF, Environment } from '@react-three/drei'
 import { useEffect, Suspense } from 'react'
 import * as THREE from 'three'
 
@@ -21,7 +21,7 @@ function Model() {
     // Configurar encoding correto para cores
     gl.outputEncoding = THREE.sRGBEncoding
     gl.toneMapping = THREE.ACESFilmicToneMapping
-    gl.toneMappingExposure = 1.0
+    gl.toneMappingExposure = 1.5
   }, [cameras, set, gl])
 
   return <primitive object={scene} />
@@ -45,12 +45,13 @@ export default function Scene3D() {
           alpha: false,
           outputEncoding: THREE.sRGBEncoding,
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.0
+          toneMappingExposure: 1.5
         }}
         onCreated={({ gl }) => {
           gl.setClearColor('#000000')
         }}
       >
+        <Environment preset="apartment" />
         <Suspense fallback={null}>
           <Model />
         </Suspense>
