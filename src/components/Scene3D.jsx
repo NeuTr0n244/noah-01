@@ -1,6 +1,6 @@
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
-import { useGLTF, Html, Box } from '@react-three/drei'
+import { useGLTF, Html } from '@react-three/drei'
 
 function LoadingScreen() {
   return (
@@ -20,51 +20,13 @@ function LoadingScreen() {
         }}
       >
         Loading Noah's Room...
-        <div style={{ fontSize: '1rem', marginTop: '10px', color: 'rgba(255,255,255,0.7)' }}>
-          (172MB - may take a moment)
-        </div>
       </div>
     </Html>
   )
 }
 
-// Fallback placeholder scene
-function PlaceholderRoom() {
-  return (
-    <group>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[5, 5, 5]} intensity={1} />
-      <Box args={[10, 0.1, 10]} position={[0, 0, 0]}>
-        <meshStandardMaterial color="#f0e6d2" />
-      </Box>
-      <Box args={[0.1, 5, 10]} position={[-5, 2.5, 0]}>
-        <meshStandardMaterial color="#e8dcc8" />
-      </Box>
-      <Box args={[0.1, 5, 10]} position={[5, 2.5, 0]}>
-        <meshStandardMaterial color="#e8dcc8" />
-      </Box>
-      <Box args={[10, 5, 0.1]} position={[0, 2.5, -5]}>
-        <meshStandardMaterial color="#e8dcc8" />
-      </Box>
-    </group>
-  )
-}
-
 function Model() {
-  const [usePlaceholder, setUsePlaceholder] = useState(false)
-
-  // Try to load GLB with error handling
-  const glbUrl = import.meta.env.VITE_GLB_URL || '/models/saladesenho.glb'
-
-  let glbData
-  try {
-    glbData = useGLTF(glbUrl, true)
-  } catch (error) {
-    console.warn('GLB loading failed, using placeholder:', error)
-    return <PlaceholderRoom />
-  }
-
-  const { scene, cameras } = glbData
+  const { scene, cameras } = useGLTF('/models/saladesenho.glb')
   const { set, size } = useThree()
 
   // Use the camera from the GLB file
@@ -90,10 +52,6 @@ function Model() {
     return () => window.removeEventListener('resize', handleResize)
   }, [cameras])
 
-  if (!scene) {
-    return <PlaceholderRoom />
-  }
-
   return <primitive object={scene} />
 }
 
@@ -105,14 +63,9 @@ export default function Scene3D() {
       left: 0,
       width: '100vw',
       height: '100vh',
-      zIndex: 0,
-      background: 'linear-gradient(180deg, #87CEEB 0%, #f0e6d2 100%)'
+      zIndex: 0
     }}>
       <Canvas
-        camera={{
-          position: [0, 2, 5],
-          fov: 50
-        }}
         dpr={[1, 2]}
         gl={{
           antialias: true,
@@ -130,10 +83,5 @@ export default function Scene3D() {
   )
 }
 
-// Try to preload the model
-try {
-  const glbUrl = import.meta.env.VITE_GLB_URL || '/models/saladesenho.glb'
-  useGLTF.preload(glbUrl)
-} catch (error) {
-  console.warn('GLB preload failed:', error)
-}
+// Preload the model
+useGLTF.preload('/models/saladesenho.glb')
