@@ -1,30 +1,24 @@
 import { Canvas, useThree, useLoader } from '@react-three/fiber'
 import { Suspense, useEffect } from 'react'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import * as THREE from 'three'
 
 const GLB_URL = 'https://pub-86fa2dc7ce2a48b0a619b665a49cf94a.r2.dev/saladesenho.glb'
 
 function Model() {
   const gltf = useLoader(GLTFLoader, GLB_URL)
-  const { set, gl, size } = useThree()
+  const { set, size } = useThree()
 
   useEffect(() => {
-    // Usar câmera do GLB
+    // Usar câmera do GLB se existir
     if (gltf.cameras && gltf.cameras.length > 0) {
       const cam = gltf.cameras[0]
       cam.aspect = size.width / size.height
       cam.updateProjectionMatrix()
       set({ camera: cam })
     }
+  }, [gltf, set, size])
 
-    // Configurar renderer igual glTF Viewer
-    gl.outputEncoding = THREE.sRGBEncoding
-    gl.toneMapping = THREE.ACESFilmicToneMapping
-    gl.toneMappingExposure = 1.0
-  }, [gltf, set, gl, size])
-
-  // Retornar a cena COMPLETA sem modificar NADA
+  // Retornar a cena COMPLETA - inclui Mesh, SkinnedMesh, Lights, tudo
   return <primitive object={gltf.scene} />
 }
 
