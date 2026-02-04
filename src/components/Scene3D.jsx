@@ -26,7 +26,7 @@ function LoadingScreen() {
 }
 
 function Model() {
-  const { scene, cameras } = useGLTF('/models/saladesenho.glb')
+  const { scene, cameras } = useGLTF('https://pub-86fa2dc7ce2a48b0a619b665a49cf94a.r2.dev/saladesenho.glb')
   const { set, size } = useThree()
 
   // Use the camera from the GLB file
@@ -84,4 +84,4 @@ export default function Scene3D() {
 }
 
 // Preload the model
-useGLTF.preload('/models/saladesenho.glb')
+useGLTF.preload('https://pub-86fa2dc7ce2a48b0a619b665a49cf94a.r2.dev/saladesenho.glb')
