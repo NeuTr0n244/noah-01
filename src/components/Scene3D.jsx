@@ -14,8 +14,19 @@ function Model() {
       cam.aspect = size.width / size.height
       cam.updateProjectionMatrix()
       set({ camera: cam })
+      console.log('✅ Using GLB camera:', cam.name || 'Camera')
     }
-  }, [cameras, set, size])
+
+    // Debug: Log all objects in the scene
+    if (scene) {
+      console.log('🎨 Scene loaded with', scene.children.length, 'children')
+      scene.traverse((obj) => {
+        if (obj.isMesh) {
+          console.log('  - Mesh:', obj.name, 'visible:', obj.visible, 'geometry:', obj.geometry.type)
+        }
+      })
+    }
+  }, [cameras, set, size, scene])
 
   return <primitive object={scene} />
 }
