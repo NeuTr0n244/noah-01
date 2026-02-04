@@ -1,37 +1,32 @@
-import { Canvas, useThree } from '@react-three/fiber'
-import { useGLTF, Environment } from '@react-three/drei'
+import { Canvas, useThree, useLoader } from '@react-three/fiber'
 import { Suspense, useEffect } from 'react'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import * as THREE from 'three'
 
 const GLB_URL = 'https://pub-86fa2dc7ce2a48b0a619b665a49cf94a.r2.dev/saladesenho.glb'
 
 function Model() {
-  const { scene, cameras } = useGLTF(GLB_URL)
-  const { set, size } = useThree()
+  const gltf = useLoader(GLTFLoader, GLB_URL)
+  const { set, gl, size } = useThree()
 
   useEffect(() => {
-    if (cameras && cameras.length > 0) {
-      const cam = cameras[0]
+    // Usar câmera do GLB
+    if (gltf.cameras && gltf.cameras.length > 0) {
+      const cam = gltf.cameras[0]
       cam.aspect = size.width / size.height
       cam.updateProjectionMatrix()
       set({ camera: cam })
-      console.log('✅ Using GLB camera:', cam.name || 'Camera')
     }
 
-    // Debug: Log all objects in the scene
-    if (scene) {
-      console.log('🎨 Scene loaded with', scene.children.length, 'children')
-      scene.traverse((obj) => {
-        if (obj.isMesh) {
-          console.log('  - Mesh:', obj.name, 'visible:', obj.visible, 'geometry:', obj.geometry.type)
-        }
-      })
-    }
-  }, [cameras, set, size, scene])
+    // Configurar renderer igual glTF Viewer
+    gl.outputEncoding = THREE.sRGBEncoding
+    gl.toneMapping = THREE.ACESFilmicToneMapping
+    gl.toneMappingExposure = 1.0
+  }, [gltf, set, gl, size])
 
-  return <primitive object={scene} />
+  // Retornar a cena COMPLETA sem modificar NADA
+  return <primitive object={gltf.scene} />
 }
-
-useGLTF.preload(GLB_URL)
 
 export default function Scene3D() {
   return (
@@ -43,9 +38,10 @@ export default function Scene3D() {
       height: '100vh',
       zIndex: 0
     }}>
-      <Canvas gl={{ antialias: true }}>
+      <Canvas>
         <Suspense fallback={null}>
-          <Environment preset="apartment" />
+          <ambientLight intensity={0.5} />
+          <directionalLight position={[5, 5, 5]} intensity={1} />
           <Model />
         </Suspense>
       </Canvas>
