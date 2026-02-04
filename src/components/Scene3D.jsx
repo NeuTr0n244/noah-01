@@ -71,10 +71,16 @@ export default function Scene3D() {
           antialias: true,
           alpha: false,
           powerPreference: 'high-performance',
-          toneMappingExposure: 1.0,
+          toneMappingExposure: 1.5,
         }}
         style={{ width: '100%', height: '100%' }}
       >
+        {/* Lighting */}
+        <ambientLight intensity={1.5} />
+        <directionalLight position={[5, 10, 5]} intensity={2} castShadow />
+        <directionalLight position={[-5, 5, -5]} intensity={1} />
+        <hemisphereLight intensity={1} groundColor="#444444" />
+
         <Suspense fallback={<LoadingScreen />}>
           <Model />
         </Suspense>
