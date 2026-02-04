@@ -25,8 +25,11 @@ function LoadingScreen() {
   )
 }
 
+// Use GitHub LFS raw URL for the GLB file to avoid Vercel 100MB limit
+const GLB_URL = import.meta.env.VITE_GLB_URL || '/models/saladesenho.glb'
+
 function Model() {
-  const { scene, cameras } = useGLTF('/models/saladesenho.glb')
+  const { scene, cameras } = useGLTF(GLB_URL)
   const { set, size } = useThree()
 
   // Use the camera from the GLB file
@@ -84,4 +87,7 @@ export default function Scene3D() {
 }
 
 // Preload the model
-useGLTF.preload('/models/saladesenho.glb')
+if (typeof window !== 'undefined') {
+  const GLB_URL_PRELOAD = import.meta.env.VITE_GLB_URL || '/models/saladesenho.glb'
+  useGLTF.preload(GLB_URL_PRELOAD)
+}

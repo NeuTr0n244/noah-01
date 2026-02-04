@@ -1,0 +1,2 @@
+# Ignore large GLB files - these should be served from CDN
+public/models/*.glb
