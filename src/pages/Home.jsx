@@ -2,18 +2,10 @@ import { useState, useCallback } from 'react'
 import { useSocket } from '../contexts/SocketContext'
 import './Home.css'
 
-// Format time as MM:SS
-const formatTime = (seconds) => {
-  const mins = Math.floor(seconds / 60)
-  const secs = seconds % 60
-  return `${mins}:${secs.toString().padStart(2, '0')}`
-}
-
 export default function Home() {
   const {
     connectionStatus,
     showConnectedMessage,
-    timeLeft,
     isDrawing,
     currentDrawing,
     gallery,
@@ -64,12 +56,6 @@ export default function Home() {
 
   return (
     <div className="home-page-new">
-      {/* Timer - acima do desenho */}
-      <div className="timer-box-new">
-        <span className="timer-label">Next drawing in</span>
-        <span className="timer-value">{formatTime(timeLeft)}</span>
-      </div>
-
       {/* Desenho principal centralizado */}
       <div className="drawing-box-new">
         {renderConnectionStatus()}

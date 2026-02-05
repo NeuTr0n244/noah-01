@@ -4,6 +4,7 @@ import { SocketProvider } from './contexts/SocketContext'
 import Scene3D from './components/Scene3D'
 import Navigation from './components/Navigation'
 import UserProfile from './components/UserProfile'
+import Timer from './components/Timer/Timer'
 import Chat from './components/Chat/Chat'
 import Home from './pages/Home'
 import About from './pages/About'
@@ -34,6 +35,11 @@ export default function App() {
           <nav className="navigation-bar">
             <Navigation />
           </nav>
+
+          {/* Timer - Abaixo da navegação */}
+          <div className="timer-bar">
+            <Timer />
+          </div>
 
           {/* 3D do Noah - Quadrado direito */}
           <div className="scene-box">
