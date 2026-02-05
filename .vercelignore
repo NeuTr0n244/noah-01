@@ -1,3 +1,11 @@
 # Ignore large files - these should be served from CDN
 public/models/
 textures/
+dist/
+
+# Ignore node_modules - Vercel will install dependencies
+node_modules/
+
+# Ignore git files
+.git/
+.gitignore
