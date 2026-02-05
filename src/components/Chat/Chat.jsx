@@ -198,11 +198,6 @@ export default function Chat({ userProfile }) {
     <div className="chat-container">
       <div className="chat-header">
         <h3 className="chat-title">Chat Room</h3>
-        <p className="chat-subtitle">Suggest what Noah should draw next!</p>
-        <div className="chat-user-info">
-          {renderAvatar(avatar, username, getAvatarColor(username), 'user-avatar')}
-          <span className="user-name">{username}</span>
-        </div>
       </div>
 
       <div className="messages-container">

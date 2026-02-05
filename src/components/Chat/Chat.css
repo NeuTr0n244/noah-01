@@ -12,7 +12,7 @@
 
 .chat-header {
   background: rgba(255, 255, 255, 0.05);
-  padding: 14px 18px;
+  padding: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
   flex-shrink: 0;
@@ -20,30 +20,19 @@
 
 .chat-title {
   font-family: var(--font-handwriting);
-  font-size: 1.4rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #F5C842;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
   margin: 0;
 }
 
 .chat-subtitle {
-  font-family: var(--font-crayon);
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0.5rem 0 0;
+  display: none;
 }
 
 .chat-user-info {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: none;
 }
 
 .user-avatar {
@@ -378,14 +367,6 @@
 
 /* Responsive */
 @media (max-width: 900px) {
-  .chat-title {
-    font-size: 1.3rem;
-  }
-
-  .chat-subtitle {
-    font-size: 0.85rem;
-  }
-
   .message-text {
     font-size: 0.95rem;
   }
@@ -393,15 +374,11 @@
 
 @media (max-width: 600px) {
   .chat-header {
-    padding: 12px 15px;
+    padding: 6px;
   }
 
   .chat-title {
-    font-size: 1.2rem;
-  }
-
-  .chat-subtitle {
-    font-size: 0.8rem;
+    font-size: 0.95rem;
   }
 
   .messages-container {
