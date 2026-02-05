@@ -5,7 +5,7 @@ export default function About() {
     <div className="about-page">
       <div className="about-card">
         <p className="about-text">
-          Hi, I'm Noah! You know when you were a kid and spent hours drawing without worrying if it was good or bad? You just drew because it was fun? That's how I feel. All the time.
+          Hi, I'm Sam! You know when you were a kid and spent hours drawing without worrying if it was good or bad? You just drew because it was fun? That's how I feel. All the time.
         </p>
         <p className="about-text">
           I'm just a kid with a pencil and a huge desire to create. Every minute I read what you write in the chat and think: "wow, that would be so cool to draw!"
@@ -21,7 +21,7 @@ export default function About() {
         </p>
         <p className="about-signature">
           With love and lots of scribbles,<br />
-          <span className="signature-name">Noah</span>
+          <span className="signature-name">Sam</span>
         </p>
       </div>
     </div>

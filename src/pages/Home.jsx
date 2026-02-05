@@ -19,7 +19,7 @@ export default function Home() {
   const handleDownload = useCallback((image, name) => {
     const link = document.createElement('a')
     link.href = image
-    link.download = `noah-drawing-${name.replace(/\s+/g, '-')}.png`
+    link.download = `sam-drawing-${name.replace(/\s+/g, '-')}.png`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -49,7 +49,7 @@ export default function Home() {
     }
 
     if (connectionStatus === 'offline') {
-      return <p className="connection-status offline">Running in offline mode</p>
+      return <p className="connection-status offline subtle">Offline</p>
     }
 
     return null
@@ -71,12 +71,12 @@ export default function Home() {
             {currentDrawing ? (
               <img
                 src={currentDrawing}
-                alt="Noah's drawing"
+                alt="Sam's drawing"
                 className={`current-drawing ${isDrawing ? 'hidden' : 'revealed'}`}
               />
             ) : (
               <div className="drawing-placeholder">
-                <span>Waiting for Noah to draw...</span>
+                <span>Waiting for Sam to draw...</span>
               </div>
             )}
           </div>
@@ -93,7 +93,7 @@ export default function Home() {
                   <circle className="scribble-dot scribble-7" cx="80" cy="110" r="3" />
                 </svg>
               </div>
-              <p className="drawing-secret-text">Shhh... Noah is drawing!</p>
+              <p className="drawing-secret-text">Shhh... Sam is drawing!</p>
             </div>
           )}
         </div>

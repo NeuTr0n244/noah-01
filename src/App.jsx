@@ -26,7 +26,7 @@ function AppContent({ userProfile, handleProfileChange }) {
       )}
 
       {/* Título - Topo esquerdo */}
-      <h1 className="app-title">Noah Universe</h1>
+      <h1 className="app-title">Sam Universe</h1>
 
       {/* Profile - Topo direito */}
       <div className="profile-button">

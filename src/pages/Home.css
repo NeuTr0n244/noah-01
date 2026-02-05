@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 20px;
+  padding: 100px 20px 20px 20px;
   pointer-events: none;
 }
 
@@ -42,6 +42,15 @@
   background: rgba(251, 191, 36, 0.15);
 }
 
+.connection-status.offline.subtle {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  border: none;
+  color: rgba(251, 191, 36, 0.6);
+  margin-bottom: 0.25rem;
+}
+
 @keyframes fadeOut {
   0%, 70% { opacity: 1; }
   100% { opacity: 0; display: none; }
@@ -69,7 +78,7 @@
 /* Drawing card container - Right side glass */
 .drawing-card-container {
   width: clamp(400px, 38vw, 600px);
-  max-height: 85vh;
+  max-height: 75vh;
   background: rgba(15, 15, 15, 0.75);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -79,7 +88,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  z-index: 10;
+  z-index: 15;
   pointer-events: auto;
   margin-right: 40px;
 }
@@ -226,35 +235,36 @@
 /* Gallery inline at bottom of card */
 .gallery-inline {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   overflow-x: auto;
-  padding: 8px 0;
+  padding: 12px 0;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .gallery-inline::-webkit-scrollbar {
-  height: 4px;
+  height: 6px;
 }
 
 .gallery-inline::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.3);
-  border-radius: 2px;
+  border-radius: 3px;
 }
 
 .gallery-thumb-inline {
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: transform 0.2s;
   flex-shrink: 0;
   background: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .gallery-thumb-inline:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* Modal */
@@ -381,12 +391,13 @@
 @media (max-width: 768px) {
   .home-page-container {
     justify-content: center;
+    padding: 80px 10px 10px 10px;
   }
 
   .drawing-card-container {
     width: calc(100% - 20px);
     margin: 0 10px;
-    max-height: 70vh;
+    max-height: 75vh;
   }
 
   .drawing-frame {
@@ -398,7 +409,7 @@
   }
 
   .gallery-thumb-inline {
-    width: 50px;
-    height: 50px;
+    width: 70px;
+    height: 70px;
   }
 }
