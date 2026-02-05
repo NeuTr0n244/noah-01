@@ -7,6 +7,7 @@ import UserProfile from './components/UserProfile'
 import Timer from './components/Timer/Timer'
 import Chat from './components/Chat/Chat'
 import Home from './pages/Home'
+import Gallery from './pages/Gallery'
 import About from './pages/About'
 import Community from './pages/Community'
 import './App.css'
@@ -42,6 +43,7 @@ function AppContent({ userProfile, handleProfileChange }) {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/gallery" element={<Gallery />} />
           <Route path="about" element={<About />} />
           <Route path="community" element={<Community />} />
         </Routes>

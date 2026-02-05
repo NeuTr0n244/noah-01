@@ -9,25 +9,8 @@ export default function Home() {
     showConnectedMessage,
     isDrawing,
     currentDrawing,
-    gallery,
     retry
   } = useSocket()
-
-  const [selectedImage, setSelectedImage] = useState(null)
-
-  // Download image function
-  const handleDownload = useCallback((image, name) => {
-    const link = document.createElement('a')
-    link.href = image
-    link.download = `sam-drawing-${name.replace(/\s+/g, '-')}.png`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }, [])
-
-  const closeModal = useCallback(() => {
-    setSelectedImage(null)
-  }, [])
 
   // Render connection status message
   const renderConnectionStatus = () => {
@@ -46,10 +29,6 @@ export default function Home() {
           <button className="retry-btn" onClick={retry}>Retry</button>
         </div>
       )
-    }
-
-    if (connectionStatus === 'offline') {
-      return <p className="connection-status offline subtle">Offline</p>
     }
 
     return null
@@ -97,42 +76,7 @@ export default function Home() {
             </div>
           )}
         </div>
-
-        {/* Gallery inline at bottom of card */}
-        {gallery.length > 0 && (
-          <div className="gallery-inline">
-            {gallery.slice(0, 5).map((item) => (
-              <img
-                key={item.id}
-                src={item.image}
-                alt={item.name}
-                className="gallery-thumb-inline"
-                onClick={() => setSelectedImage(item)}
-              />
-            ))}
-          </div>
-        )}
       </div>
-
-      {/* Image Modal */}
-      {selectedImage && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={closeModal}>×</button>
-            <img src={selectedImage.image} alt={selectedImage.name} className="modal-image" />
-            <div className="modal-info">
-              <h3 className="modal-title">{selectedImage.name}</h3>
-              <p className="modal-time">Created at {new Date(selectedImage.timestamp).toLocaleTimeString()}</p>
-              <button
-                className="modal-btn modal-download"
-                onClick={() => handleDownload(selectedImage.image, selectedImage.name)}
-              >
-                Download
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
