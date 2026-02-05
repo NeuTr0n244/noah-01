@@ -1,4 +1,4 @@
-import { Canvas, useLoader, useThree, useFrame } from '@react-three/fiber'
+import { Canvas, useLoader, useThree } from '@react-three/fiber'
 import { Suspense, useEffect, useRef } from 'react'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import * as THREE from 'three'
@@ -33,11 +33,6 @@ function Model() {
       set({ camera: cam })
     }
   }, [gltf, set, size])
-
-  useFrame((state, delta) => {
-    // NÃO atualizar o mixer para manter o frame fixo
-    // Se quiser animação contínua, descomente: mixerRef.current?.update(delta)
-  })
 
   return <primitive object={gltf.scene} />
 }
