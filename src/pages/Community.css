@@ -1,26 +1,31 @@
 .community-page {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 60vh;
-  padding: 20px;
+  justify-content: center;
+  padding: 40px 20px;
+  background: #0a0a0a;
+  pointer-events: auto;
 }
 
 .community-title {
   font-family: 'Gaegu', cursive;
   font-size: 2.5rem;
   font-weight: 700;
-  color: #5a4a3a;
+  color: #F5C842;
   margin: 0 0 30px;
   text-align: center;
 }
 
 .community-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 25px;
-  border: 4px solid #e8dcc8;
+  background: rgba(20, 20, 20, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
   padding: 40px 50px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
   text-align: center;
 }
 
@@ -74,14 +79,14 @@
 .contract-label {
   font-family: 'Gaegu', cursive;
   font-size: 1.2rem;
-  color: #7a6a5a;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .contract-value {
   font-family: 'Gaegu', cursive;
   font-size: 1.8rem;
   font-weight: 700;
-  color: #5a4a3a;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* Responsive */

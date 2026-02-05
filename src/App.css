@@ -14,9 +14,20 @@
 .app-container {
   width: 100vw;
   height: 100vh;
-  background: #1a1a1a;
+  background: #0a0a0a;
   position: relative;
   overflow: hidden;
+}
+
+/* Fullscreen 3D Background - Home only */
+.scene-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* Título - Topo esquerdo */
@@ -47,85 +58,52 @@
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 100;
+  z-index: 50;
   display: flex;
   gap: 0;
-  background: rgba(30, 30, 30, 0.8);
-  padding: 0;
+  background: rgba(10, 10, 10, 0.6);
+  padding: 8px;
   border-radius: 30px;
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   overflow: visible;
 }
 
-/* Timer - Abaixo da navegação */
-.timer-bar {
-  position: fixed;
-  top: 75px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-}
 
-/* 3D do Noah - Quadrado ESQUERDO */
-.scene-box {
-  position: fixed;
-  left: 30px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 450px;
-  height: 500px;
-  border-radius: 20px;
-  overflow: hidden;
-  z-index: 10;
-  background: #2a2a2a;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-}
-
-/* Chat - Canto inferior direito */
+/* Chat - Canto inferior esquerdo */
 .chat-box {
   position: fixed;
   bottom: 20px;
-  right: 20px;
-  width: 400px;
-  min-height: 350px;
-  height: auto;
-  max-height: 600px;
-  background: rgba(30, 30, 30, 0.95);
-  border-radius: 20px;
-  padding: 20px;
-  z-index: 20;
-  backdrop-filter: blur(10px);
-  overflow: visible;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  left: 20px;
+  width: 350px;
+  height: 300px;
+  background: rgba(10, 10, 10, 0.7);
+  border-radius: 16px;
+  padding: 16px;
+  z-index: 10;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-/* Conteúdo principal - Centro */
+/* Conteúdo principal */
 .main-content {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 700px;
-  z-index: 5;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.main-content > * {
+  pointer-events: auto;
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
-  .scene-box {
-    width: 350px;
-    height: 400px;
-  }
-
-  .chat-box {
-    width: 300px;
-  }
-
-  .main-content {
-    max-width: 550px;
-  }
-}
-
 @media (max-width: 768px) {
   .app-title {
     font-size: 32px;
@@ -135,27 +113,20 @@
 
   .navigation-bar {
     top: 10px;
-    padding: 0;
+    padding: 8px;
   }
 
-  .timer-bar {
-    top: 65px;
-  }
-
-  .scene-box {
+  /* Hide 3D on mobile for performance */
+  .scene-background {
     display: none;
   }
 
   .chat-box {
     bottom: 10px;
-    right: 10px;
+    left: 10px;
     width: calc(100% - 20px);
     max-width: 350px;
-  }
-
-  .main-content {
-    width: 95%;
-    max-width: 400px;
+    height: 250px;
   }
 
   .profile-button {

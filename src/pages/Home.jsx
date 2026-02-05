@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useSocket } from '../contexts/SocketContext'
+import Timer from '../components/Timer/Timer'
 import './Home.css'
 
 export default function Home() {
@@ -55,12 +56,17 @@ export default function Home() {
   }
 
   return (
-    <div className="home-page-new">
-      {/* Desenho principal centralizado */}
-      <div className="drawing-box-new">
+    <div className="home-page-container">
+      <div className="drawing-card-container">
+        {/* Timer in card header */}
+        <div className="drawing-card-header">
+          <Timer />
+        </div>
+
         {renderConnectionStatus()}
 
-        <div className="drawing-frame-new">
+        {/* Drawing display */}
+        <div className="drawing-frame">
           <div className="drawing-display">
             {currentDrawing ? (
               <img
@@ -91,25 +97,22 @@ export default function Home() {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Gallery - embaixo do desenho */}
-      {gallery.length > 0 && (
-        <div className="gallery-compact">
-          <h3>Recent Drawings</h3>
-          <div className="gallery-scroll">
+        {/* Gallery inline at bottom of card */}
+        {gallery.length > 0 && (
+          <div className="gallery-inline">
             {gallery.slice(0, 5).map((item) => (
-              <div
+              <img
                 key={item.id}
-                className="gallery-thumb"
+                src={item.image}
+                alt={item.name}
+                className="gallery-thumb-inline"
                 onClick={() => setSelectedImage(item)}
-              >
-                <img src={item.image} alt={item.name} />
-              </div>
+              />
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Image Modal */}
       {selectedImage && (

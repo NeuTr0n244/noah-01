@@ -1,25 +1,26 @@
 .timer-container {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  background: rgba(30, 30, 30, 0.8);
-  backdrop-filter: blur(10px);
-  padding: 10px 20px;
-  border-radius: 15px;
+  gap: 0.5rem;
+  background: transparent;
+  backdrop-filter: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: none;
 }
 
 .timer-label {
   font-family: var(--font-crayon);
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
   white-space: nowrap;
 }
 
 .timer-value {
   font-family: 'Caveat', cursive;
-  font-size: 24px;
+  font-size: 20px;
   color: #F5C842;
   font-weight: 700;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   white-space: nowrap;
 }
