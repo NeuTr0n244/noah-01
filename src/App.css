@@ -9,3 +9,143 @@
   height: 100vh;
   overflow: hidden;
 }
+
+/* Container principal */
+.app-container {
+  width: 100vw;
+  height: 100vh;
+  background: #1a1a1a;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Título - Topo esquerdo */
+.app-title {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  font-family: 'Caveat', cursive;
+  font-size: 48px;
+  color: #F5C842;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+  font-weight: 700;
+  z-index: 100;
+  margin: 0;
+}
+
+/* Profile - Topo direito */
+.profile-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+/* Navegação - Centro topo */
+.navigation-bar {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  gap: 0;
+  background: rgba(30, 30, 30, 0.8);
+  padding: 0;
+  border-radius: 30px;
+  backdrop-filter: blur(10px);
+  overflow: visible;
+}
+
+/* 3D do Noah - Quadrado ESQUERDO */
+.scene-box {
+  position: fixed;
+  left: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 450px;
+  height: 500px;
+  border-radius: 20px;
+  overflow: hidden;
+  z-index: 10;
+  background: #2a2a2a;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Chat - Canto inferior direito */
+.chat-box {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 400px;
+  min-height: 350px;
+  height: auto;
+  max-height: 600px;
+  background: rgba(30, 30, 30, 0.95);
+  border-radius: 20px;
+  padding: 20px;
+  z-index: 20;
+  backdrop-filter: blur(10px);
+  overflow: visible;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Conteúdo principal - Centro */
+.main-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 700px;
+  z-index: 5;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .scene-box {
+    width: 350px;
+    height: 400px;
+  }
+
+  .chat-box {
+    width: 300px;
+  }
+
+  .main-content {
+    max-width: 550px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-title {
+    font-size: 32px;
+    top: 10px;
+    left: 10px;
+  }
+
+  .navigation-bar {
+    top: 10px;
+    padding: 0;
+  }
+
+  .scene-box {
+    display: none;
+  }
+
+  .chat-box {
+    bottom: 10px;
+    right: 10px;
+    width: calc(100% - 20px);
+    max-width: 350px;
+  }
+
+  .main-content {
+    width: 95%;
+    max-width: 400px;
+  }
+
+  .profile-button {
+    right: 10px;
+  }
+}

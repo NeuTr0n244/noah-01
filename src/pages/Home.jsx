@@ -1,6 +1,4 @@
 import { useState, useCallback } from 'react'
-import { useOutletContext } from 'react-router-dom'
-import Chat from '../components/Chat/Chat'
 import { useSocket } from '../contexts/SocketContext'
 import './Home.css'
 
@@ -12,7 +10,6 @@ const formatTime = (seconds) => {
 }
 
 export default function Home() {
-  const { userProfile } = useOutletContext()
   const {
     connectionStatus,
     showConnectedMessage,
@@ -66,22 +63,18 @@ export default function Home() {
   }
 
   return (
-    <div className="home-page">
-      {renderConnectionStatus()}
-
-      {/* Timer */}
-      <div className="timer-box">
+    <div className="home-page-new">
+      {/* Timer - acima do desenho */}
+      <div className="timer-box-new">
         <span className="timer-label">Next drawing in</span>
         <span className="timer-value">{formatTime(timeLeft)}</span>
       </div>
 
-      {/* Drawing section */}
-      <section className="drawing-section">
-        <div className="drawing-header">
-          <h2>My Drawing</h2>
-          {isDrawing && <span className="drawing-indicator">Drawing in progress...</span>}
-        </div>
-        <div className="drawing-frame">
+      {/* Desenho principal centralizado */}
+      <div className="drawing-box-new">
+        {renderConnectionStatus()}
+
+        <div className="drawing-frame-new">
           <div className="drawing-display">
             {currentDrawing ? (
               <img
@@ -112,44 +105,31 @@ export default function Home() {
             </div>
           )}
         </div>
-      </section>
+      </div>
 
-      {/* Chat section */}
-      <section className="chat-section">
-        <Chat userProfile={userProfile} />
-      </section>
-
-      {/* Gallery */}
-      <section className="gallery-section">
-        <h2 className="gallery-title">Recent Drawings</h2>
-        {gallery.length === 0 ? (
-          <p className="gallery-empty">No drawings yet! Wait for the timer to see me draw!</p>
-        ) : (
-          <div className="gallery-grid">
-            {gallery.map((item) => (
+      {/* Gallery - embaixo do desenho */}
+      {gallery.length > 0 && (
+        <div className="gallery-compact">
+          <h3>Recent Drawings</h3>
+          <div className="gallery-scroll">
+            {gallery.slice(0, 5).map((item) => (
               <div
                 key={item.id}
-                className="gallery-item"
+                className="gallery-thumb"
                 onClick={() => setSelectedImage(item)}
               >
                 <img src={item.image} alt={item.name} />
-                <div className="gallery-item-info">
-                  <span className="gallery-item-name">{item.name}</span>
-                  <span className="gallery-item-time">
-                    {new Date(item.timestamp).toLocaleTimeString()}
-                  </span>
-                </div>
               </div>
             ))}
           </div>
-        )}
-      </section>
+        </div>
+      )}
 
       {/* Image Modal */}
       {selectedImage && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={closeModal}>x</button>
+            <button className="modal-close" onClick={closeModal}>×</button>
             <img src={selectedImage.image} alt={selectedImage.name} className="modal-image" />
             <div className="modal-info">
               <h3 className="modal-title">{selectedImage.name}</h3>

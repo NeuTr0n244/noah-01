@@ -105,12 +105,31 @@ export default function Chat({ userProfile }) {
     const trimmedMessage = newMessage.trim()
     if (trimmedMessage.length === 0 || trimmedMessage.length > MAX_MESSAGE_LENGTH) return
 
-    sendChatMessage({
+    // Create message object
+    const messageObj = {
+      id: Date.now() + Math.random(), // Temporary ID
       username,
       text: trimmedMessage,
       color: getAvatarColor(username),
-      avatar: avatar // Include avatar in message
-    })
+      avatar: avatar,
+      timestamp: Date.now()
+    }
+
+    // Add message locally immediately for instant feedback
+    setMessages(prev => [...prev, messageObj].slice(-50))
+
+    // Try to send via WebSocket
+    try {
+      sendChatMessage({
+        username,
+        text: trimmedMessage,
+        color: getAvatarColor(username),
+        avatar: avatar
+      })
+    } catch (error) {
+      console.log('WebSocket not available, message stored locally')
+    }
+
     setNewMessage('')
     inputRef.current?.focus()
   }, [newMessage, username, avatar])
@@ -193,9 +212,9 @@ export default function Chat({ userProfile }) {
             <p>Be the first to suggest a drawing!</p>
           </div>
         ) : (
-          messages.map((msg) => (
+          messages.map((msg, index) => (
             <div
-              key={msg.id}
+              key={msg.id || index}
               className={`message ${msg.username === username ? 'own-message' : ''}`}
             >
               {renderAvatar(

@@ -1,44 +1,50 @@
 .about-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 60vh;
-  padding: 20px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 450px;
+  height: auto;
+  max-height: 90vh;
 }
 
 .about-card {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 25px;
   border: 4px solid #e8dcc8;
-  padding: 40px 50px;
-  max-width: 700px;
+  padding: 30px;
+  width: 100%;
+  height: auto;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
 }
 
 .about-text {
   font-family: 'Gaegu', cursive;
-  font-size: 1.35rem;
+  font-size: 1.2rem;
   color: #5a4a3a;
-  line-height: 1.8;
-  margin: 0 0 20px;
+  line-height: 1.7;
+  margin: 0 0 16px;
   text-align: left;
 }
 
 .about-text:last-of-type {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .about-signature {
   font-family: 'Gaegu', cursive;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   color: #7a6a5a;
   text-align: right;
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .signature-name {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: #5a4a3a;
   display: block;
@@ -46,9 +52,24 @@
 }
 
 /* Responsive */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .about-page {
+    width: 90%;
+    max-width: 400px;
+  }
+
   .about-card {
-    padding: 30px 25px;
+    padding: 25px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .about-page {
+    width: 95%;
+  }
+
+  .about-card {
+    padding: 20px 18px;
   }
 
   .about-text {
