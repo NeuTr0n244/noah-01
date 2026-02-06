@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react'
-import { useSocket } from '../contexts/SocketContext'
+import { useFirebase } from '../contexts/FirebaseContext'
 import './Gallery.css'
 
 export default function Gallery() {
-  const { gallery } = useSocket()
+  const { gallery } = useFirebase()
   const [selectedImage, setSelectedImage] = useState(null)
 
   // Download image function

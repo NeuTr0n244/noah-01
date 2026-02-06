@@ -1,4 +1,4 @@
-import { useSocket } from '../../contexts/SocketContext'
+import { useFirebase } from '../../contexts/FirebaseContext'
 import './Timer.css'
 
 // Format time as MM:SS
@@ -9,7 +9,7 @@ const formatTime = (seconds) => {
 }
 
 export default function Timer() {
-  const { timeLeft } = useSocket()
+  const { timeLeft } = useFirebase()
 
   return (
     <div className="timer-container">

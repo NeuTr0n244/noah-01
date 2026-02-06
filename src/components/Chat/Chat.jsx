@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { initSocket, onStateInit, onChatMessage, sendChatMessage } from '../../services/socket'
+import { useFirebase } from '../../contexts/FirebaseContext'
 import './Chat.css'
 
 // Generate a consistent color based on username
@@ -29,14 +29,14 @@ const formatTime = (timestamp) => {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-const STORAGE_KEY_USERNAME = 'noah_chat_username'
+const STORAGE_KEY_USERNAME = 'sam_chat_username'
 const MAX_MESSAGE_LENGTH = 200
 
 export default function Chat({ userProfile }) {
+  const { messages, sendMessage } = useFirebase()
   const [username, setUsername] = useState('')
   const [avatar, setAvatar] = useState(null)
   const [isJoined, setIsJoined] = useState(false)
-  const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
   const [usernameInput, setUsernameInput] = useState('')
 
@@ -61,28 +61,6 @@ export default function Chat({ userProfile }) {
     }
   }, [])
 
-  // Initialize socket and subscribe to chat
-  useEffect(() => {
-    initSocket()
-
-    // Get initial chat messages
-    const unsubInit = onStateInit((state) => {
-      if (state.chat) {
-        setMessages(state.chat)
-      }
-    })
-
-    // Subscribe to new chat messages
-    const unsubChat = onChatMessage((message) => {
-      setMessages(prev => [...prev, message].slice(-50))
-    })
-
-    return () => {
-      unsubInit()
-      unsubChat()
-    }
-  }, [])
-
   // Scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -100,39 +78,22 @@ export default function Chat({ userProfile }) {
   }, [usernameInput])
 
   // Handle sending message
-  const handleSend = useCallback((e) => {
+  const handleSend = useCallback(async (e) => {
     e.preventDefault()
     const trimmedMessage = newMessage.trim()
     if (trimmedMessage.length === 0 || trimmedMessage.length > MAX_MESSAGE_LENGTH) return
 
-    // Create message object
-    const messageObj = {
-      id: Date.now() + Math.random(), // Temporary ID
-      username,
+    // Send to Firebase
+    await sendMessage({
       text: trimmedMessage,
+      username,
       color: getAvatarColor(username),
-      avatar: avatar,
-      timestamp: Date.now()
-    }
-
-    // Add message locally immediately for instant feedback
-    setMessages(prev => [...prev, messageObj].slice(-50))
-
-    // Try to send via WebSocket
-    try {
-      sendChatMessage({
-        username,
-        text: trimmedMessage,
-        color: getAvatarColor(username),
-        avatar: avatar
-      })
-    } catch (error) {
-      console.log('WebSocket not available, message stored locally')
-    }
+      avatar: avatar
+    })
 
     setNewMessage('')
     inputRef.current?.focus()
-  }, [newMessage, username, avatar])
+  }, [newMessage, username, avatar, sendMessage])
 
   // Handle input change with character limit
   const handleMessageChange = (e) => {
@@ -167,7 +128,7 @@ export default function Chat({ userProfile }) {
       <div className="chat-container">
         <div className="chat-header">
           <h3 className="chat-title">Chat Room</h3>
-          <p className="chat-subtitle">Suggest what Noah should draw next!</p>
+          <p className="chat-subtitle">Suggest what Sam should draw next!</p>
         </div>
         <form className="join-form" onSubmit={handleJoin}>
           <p className="join-hint">Set your profile in the top right corner, or enter a name below:</p>

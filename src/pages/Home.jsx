@@ -1,38 +1,12 @@
-import { useState, useCallback } from 'react'
-import { useSocket } from '../contexts/SocketContext'
+import { useFirebase } from '../contexts/FirebaseContext'
 import Timer from '../components/Timer/Timer'
 import './Home.css'
 
 export default function Home() {
   const {
-    connectionStatus,
-    showConnectedMessage,
     isDrawing,
-    currentDrawing,
-    retry
-  } = useSocket()
-
-  // Render connection status message
-  const renderConnectionStatus = () => {
-    if (showConnectedMessage) {
-      return <p className="connection-status connected">Connected!</p>
-    }
-
-    if (connectionStatus === 'connecting') {
-      return <p className="connection-status">Connecting to server...</p>
-    }
-
-    if (connectionStatus === 'failed') {
-      return (
-        <div className="connection-status failed">
-          <p>Having trouble connecting. Please refresh the page.</p>
-          <button className="retry-btn" onClick={retry}>Retry</button>
-        </div>
-      )
-    }
-
-    return null
-  }
+    currentDrawing
+  } = useFirebase()
 
   return (
     <div className="home-page-container">
@@ -41,8 +15,6 @@ export default function Home() {
         <div className="drawing-card-header">
           <Timer />
         </div>
-
-        {renderConnectionStatus()}
 
         {/* Drawing display */}
         <div className="drawing-frame">

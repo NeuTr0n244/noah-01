@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { SocketProvider } from './contexts/SocketContext'
+import { FirebaseProvider } from './contexts/FirebaseContext'
 import Scene3D from './components/Scene3D'
 import Navigation from './components/Navigation'
 import UserProfile from './components/UserProfile'
@@ -10,6 +10,7 @@ import Home from './pages/Home'
 import Gallery from './pages/Gallery'
 import About from './pages/About'
 import Community from './pages/Community'
+import Admin from './pages/Admin'
 import './App.css'
 
 function AppContent({ userProfile, handleProfileChange }) {
@@ -44,8 +45,9 @@ function AppContent({ userProfile, handleProfileChange }) {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/gallery" element={<Gallery />} />
-          <Route path="about" element={<About />} />
-          <Route path="community" element={<Community />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>
 
@@ -68,10 +70,10 @@ export default function App() {
   }, [])
 
   return (
-    <SocketProvider>
+    <FirebaseProvider>
       <BrowserRouter>
         <AppContent userProfile={userProfile} handleProfileChange={handleProfileChange} />
       </BrowserRouter>
-    </SocketProvider>
+    </FirebaseProvider>
   )
 }
