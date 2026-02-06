@@ -1,10 +1,33 @@
-import { useState, useCallback } from 'react'
-import { useFirebase } from '../contexts/FirebaseContext'
+import { useState, useCallback, useEffect } from 'react'
+import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
+import { db } from '../firebase'
 import './Gallery.css'
 
 export default function Gallery() {
-  const { gallery } = useFirebase()
+  const [revealedDrawings, setRevealedDrawings] = useState([])
   const [selectedImage, setSelectedImage] = useState(null)
+
+  // Listen to revealed drawings only (ordered by number)
+  useEffect(() => {
+    const revealedQuery = query(
+      collection(db, 'drawings'),
+      where('revealed', '==', true),
+      orderBy('order', 'asc')
+    )
+
+    const unsubscribe = onSnapshot(revealedQuery, (snapshot) => {
+      const drawings = snapshot.docs.map(doc => ({
+        id: doc.id,
+        image: doc.data().imageUrl,
+        name: doc.data().title,
+        order: doc.data().order || 0,
+        timestamp: doc.data().createdAt?.toMillis() || Date.now()
+      }))
+      setRevealedDrawings(drawings)
+    })
+
+    return () => unsubscribe()
+  }, [])
 
   // Download image function
   const handleDownload = useCallback((image, name) => {
@@ -25,11 +48,11 @@ export default function Gallery() {
       <div className="gallery-container">
         <h1 className="gallery-title">Sam's Drawings</h1>
 
-        {gallery.length === 0 ? (
-          <p className="gallery-empty">No drawings yet! Check back soon.</p>
+        {revealedDrawings.length === 0 ? (
+          <p className="gallery-empty">No drawings revealed yet! Check back soon.</p>
         ) : (
           <div className="gallery-grid">
-            {gallery.map((item) => (
+            {revealedDrawings.map((item) => (
               <div
                 key={item.id}
                 className="gallery-item"

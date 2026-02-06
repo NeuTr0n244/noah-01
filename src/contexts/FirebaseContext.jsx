@@ -45,17 +45,28 @@ export function FirebaseProvider({ children }) {
         }
         await setDoc(timerDocRef, initialSettings)
         setTimerSettings(initialSettings)
+
+        // Mark the first drawing as revealed
+        if (galleryRef.current.length > 0 && galleryRef.current[0]) {
+          try {
+            await updateDoc(doc(db, 'drawings', galleryRef.current[0].id), {
+              revealed: true
+            })
+          } catch (error) {
+            console.error('Error marking first drawing as revealed:', error)
+          }
+        }
       }
     })
 
     return () => unsubscribe()
   }, [])
 
-  // Listen to all drawings for gallery in real-time (ordered by createdAt ASC for cycling)
+  // Listen to all drawings for gallery in real-time (ordered by order ASC for cycling)
   useEffect(() => {
     const galleryQuery = query(
       collection(db, 'drawings'),
-      orderBy('createdAt', 'asc')
+      orderBy('order', 'asc')
     )
 
     const unsubscribe = onSnapshot(galleryQuery, (snapshot) => {
@@ -63,6 +74,7 @@ export function FirebaseProvider({ children }) {
         id: doc.id,
         image: doc.data().imageUrl,
         name: doc.data().title,
+        order: doc.data().order || 0,
         timestamp: doc.data().createdAt?.toMillis() || Date.now()
       }))
       setGallery(drawings)
@@ -157,10 +169,21 @@ export function FirebaseProvider({ children }) {
 
         // Only update if we're still past the deadline (prevents race conditions)
         if (now >= data.nextChangeAt) {
+          const nextIndex = (data.currentDrawingIndex + 1) % Math.max(1, galleryRef.current.length)
+
+          // Update timer
           await updateDoc(timerDocRef, {
-            currentDrawingIndex: (data.currentDrawingIndex + 1) % Math.max(1, galleryRef.current.length),
+            currentDrawingIndex: nextIndex,
             nextChangeAt: now + (data.timerDuration * 1000)
           })
+
+          // Mark the NEW current drawing as revealed
+          if (galleryRef.current[nextIndex]) {
+            const drawingId = galleryRef.current[nextIndex].id
+            await updateDoc(doc(db, 'drawings', drawingId), {
+              revealed: true
+            })
+          }
         }
       }
     } catch (error) {
