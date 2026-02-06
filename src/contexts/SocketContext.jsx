@@ -65,7 +65,7 @@ export function SocketProvider({ children }) {
       const galleryItem = {
         id: `drawing-${drawingNumber}`,
         image: newDrawing,
-        name: `Noah's Art #${drawingNumber}`,
+        name: `Sam's Art #${drawingNumber}`,
         timestamp: Date.now()
       }
 
@@ -75,7 +75,7 @@ export function SocketProvider({ children }) {
           console.log(`[Local] Drawing #${drawingNumber} already exists, skipping`)
           return prev
         }
-        const newGallery = [galleryItem, ...prev].slice(0, 20)
+        const newGallery = [galleryItem, ...prev]
         console.log(`[Local] Added Drawing #${drawingNumber} to gallery`)
         return newGallery
       })
