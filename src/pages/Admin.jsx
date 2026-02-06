@@ -23,6 +23,15 @@ export default function Admin() {
   const [isMigrating, setIsMigrating] = useState(false)
   const [migrationStatus, setMigrationStatus] = useState('')
 
+  // Timer control state
+  const [timerRunning, setTimerRunning] = useState(false)
+  const [isTogglingTimer, setIsTogglingTimer] = useState(false)
+  const [currentTimerDuration, setCurrentTimerDuration] = useState(30)
+
+  // Reset state
+  const [isResetting, setIsResetting] = useState(false)
+  const [resetProgress, setResetProgress] = useState('')
+
   // Listen to all drawings (ordered by order for admin view)
   useEffect(() => {
     const drawingsQuery = query(
@@ -37,6 +46,21 @@ export default function Admin() {
         timestamp: doc.data().createdAt?.toMillis() || Date.now()
       }))
       setDrawings(drawingsList)
+    })
+
+    return () => unsubscribe()
+  }, [])
+
+  // Listen to timer settings
+  useEffect(() => {
+    const timerDocRef = doc(db, 'settings', 'timer')
+
+    const unsubscribe = onSnapshot(timerDocRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data()
+        setTimerRunning(data.timerRunning !== false)
+        setCurrentTimerDuration(data.timerDuration || 30)
+      }
     })
 
     return () => unsubscribe()
@@ -421,12 +445,190 @@ export default function Admin() {
     }
   }
 
+  // Toggle timer running state
+  const toggleTimer = async () => {
+    setIsTogglingTimer(true)
+
+    try {
+      const timerDocRef = doc(db, 'settings', 'timer')
+      const docSnap = await getDoc(timerDocRef)
+
+      if (docSnap.exists()) {
+        const currentData = docSnap.data()
+        const newRunningState = !timerRunning
+
+        if (newRunningState) {
+          // Starting timer - set nextChangeAt to now + duration
+          await updateDoc(timerDocRef, {
+            timerRunning: true,
+            nextChangeAt: Date.now() + ((currentData.timerDuration || 30) * 1000)
+          })
+        } else {
+          // Pausing timer
+          await updateDoc(timerDocRef, {
+            timerRunning: false
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling timer:', error)
+      setMessage({ text: `Error toggling timer: ${error.message}`, type: 'error' })
+    } finally {
+      setIsTogglingTimer(false)
+    }
+  }
+
+  // Update timer duration in Firestore
+  const updateTimerDuration = async () => {
+    if (!confirm('Update timer duration to 30 seconds in Firestore?\n\nThis will update the settings/timer document.')) {
+      return
+    }
+
+    try {
+      const timerDocRef = doc(db, 'settings', 'timer')
+      await updateDoc(timerDocRef, {
+        timerDuration: 30
+      })
+      setMessage({ text: 'Timer duration updated to 30 seconds!', type: 'success' })
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000)
+    } catch (error) {
+      console.error('Error updating timer duration:', error)
+      setMessage({ text: `Error: ${error.message}`, type: 'error' })
+    }
+  }
+
+  // Reset everything function
+  const resetEverything = async () => {
+    // First confirmation
+    if (!confirm('⚠️ Are you sure you want to reset EVERYTHING?\n\nThis will:\n- Delete all chat messages\n- Hide all drawings (set revealed: false)\n- Reset timer to drawing #1\n\nThe drawings themselves will NOT be deleted, just hidden.')) {
+      return
+    }
+
+    // Second confirmation - require typing "RESET"
+    const confirmText = prompt('⚠️ This action CANNOT be undone.\n\nType RESET (in capital letters) to confirm:')
+    if (confirmText !== 'RESET') {
+      alert('Reset cancelled. You must type RESET exactly to confirm.')
+      return
+    }
+
+    setIsResetting(true)
+    setResetProgress('Starting reset...')
+
+    try {
+      // Step 1: Delete all messages
+      setResetProgress('Deleting all chat messages...')
+      const messagesQuery = query(collection(db, 'messages'))
+      const messagesSnapshot = await getDocs(messagesQuery)
+
+      const deleteMessagesPromises = messagesSnapshot.docs.map(docSnapshot =>
+        deleteDoc(doc(db, 'messages', docSnapshot.id))
+      )
+      await Promise.all(deleteMessagesPromises)
+      setResetProgress(`✓ Deleted ${messagesSnapshot.size} messages`)
+
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      // Step 2: Reset all drawings to revealed: false
+      setResetProgress('Hiding all drawings (setting revealed: false)...')
+      const drawingsQuery = query(collection(db, 'drawings'))
+      const drawingsSnapshot = await getDocs(drawingsQuery)
+
+      const resetDrawingsPromises = drawingsSnapshot.docs.map(docSnapshot =>
+        updateDoc(doc(db, 'drawings', docSnapshot.id), {
+          revealed: false
+        })
+      )
+      await Promise.all(resetDrawingsPromises)
+      setResetProgress(`✓ Reset ${drawingsSnapshot.size} drawings to hidden`)
+
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      // Step 3: Reset timer document
+      setResetProgress('Resetting timer to initial state...')
+      const timerDocRef = doc(db, 'settings', 'timer')
+      await updateDoc(timerDocRef, {
+        currentDrawingIndex: 0,
+        nextChangeAt: Date.now() + (30 * 1000),
+        timerRunning: false,
+        timerDuration: 30
+      })
+      setResetProgress('✓ Timer reset to drawing #1, paused')
+
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      // Mark first drawing as revealed
+      if (drawingsSnapshot.size > 0) {
+        const firstDrawingQuery = query(
+          collection(db, 'drawings'),
+          orderBy('order', 'asc')
+        )
+        const firstDrawingSnapshot = await getDocs(firstDrawingQuery)
+        if (!firstDrawingSnapshot.empty) {
+          await updateDoc(doc(db, 'drawings', firstDrawingSnapshot.docs[0].id), {
+            revealed: true
+          })
+          setResetProgress('✓ First drawing marked as visible')
+        }
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      setResetProgress('✅ Reset complete! Site is fresh and ready to start.')
+
+      // Clear progress after 5 seconds
+      setTimeout(() => {
+        setResetProgress('')
+        setIsResetting(false)
+      }, 5000)
+
+    } catch (error) {
+      console.error('Error during reset:', error)
+      setResetProgress(`❌ Error: ${error.message}`)
+      setTimeout(() => {
+        setResetProgress('')
+        setIsResetting(false)
+      }, 5000)
+    }
+  }
+
   const previewImage = uploadMethod === 'file' ? imageFile : imageUrl
 
   return (
     <div className="admin-page">
       <div className="admin-container">
         <h1 className="admin-title">Admin - Manage Drawings</h1>
+
+        {/* Timer Control Section */}
+        <div className="timer-control-section">
+          <div className="timer-status">
+            <h2 className="section-subtitle">Drawing Release Timer</h2>
+            <p className={`timer-status-text ${timerRunning ? 'running' : 'paused'}`}>
+              {timerRunning ? (
+                <>● Timer is <strong>RUNNING</strong> - drawings are being released every {currentTimerDuration}s</>
+              ) : (
+                <>○ Timer is <strong>PAUSED</strong> - no new drawings</>
+              )}
+            </p>
+            {currentTimerDuration !== 30 && (
+              <button className="duration-update-button" onClick={updateTimerDuration}>
+                Update Duration to 30s (currently {currentTimerDuration}s)
+              </button>
+            )}
+          </div>
+          <button
+            className={`timer-toggle-button ${timerRunning ? 'running' : 'paused'}`}
+            onClick={toggleTimer}
+            disabled={isTogglingTimer}
+          >
+            {isTogglingTimer ? (
+              'Updating...'
+            ) : timerRunning ? (
+              <>⏸ Pause Releases</>
+            ) : (
+              <>▶ Start Releasing Drawings</>
+            )}
+          </button>
+        </div>
 
         {/* Migration Section */}
         <div className="migration-section">
@@ -671,6 +873,37 @@ export default function Admin() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Danger Zone */}
+        <div className="danger-zone-section">
+          <h2 className="danger-zone-title">⚠️ Danger Zone</h2>
+          <p className="danger-zone-warning">
+            Reset the entire site to a fresh state. This will:
+          </p>
+          <ul className="danger-zone-list">
+            <li>Delete ALL chat messages permanently</li>
+            <li>Hide ALL drawings (set to unrevealed)</li>
+            <li>Reset timer to drawing #1 (paused)</li>
+            <li>Gallery will be empty</li>
+          </ul>
+          <p className="danger-zone-note">
+            Note: Drawings themselves are NOT deleted, just hidden. You can reveal them again by starting the timer.
+          </p>
+
+          {resetProgress && (
+            <div className="reset-progress">
+              {resetProgress}
+            </div>
+          )}
+
+          <button
+            className="reset-button"
+            onClick={resetEverything}
+            disabled={isResetting}
+          >
+            {isResetting ? 'Resetting...' : '🗑️ Reset Everything (Start Fresh)'}
+          </button>
         </div>
       </div>
     </div>

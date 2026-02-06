@@ -97,6 +97,7 @@
   height: 100vh;
   z-index: 1;
   pointer-events: none;
+  overflow-y: auto;
 }
 
 .main-content > * {

@@ -15,7 +15,7 @@ import { db } from '../firebase'
 
 const FirebaseContext = createContext(null)
 
-const TIMER_DURATION = 60
+const TIMER_DURATION = 30
 
 export function FirebaseProvider({ children }) {
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION)
@@ -24,6 +24,7 @@ export function FirebaseProvider({ children }) {
   const [gallery, setGallery] = useState([])
   const [messages, setMessages] = useState([])
   const [timerSettings, setTimerSettings] = useState(null)
+  const [timerRunning, setTimerRunning] = useState(false)
 
   const timerRef = useRef(null)
   const galleryRef = useRef([])
@@ -36,15 +37,18 @@ export function FirebaseProvider({ children }) {
       if (snapshot.exists()) {
         const data = snapshot.data()
         setTimerSettings(data)
+        setTimerRunning(data.timerRunning !== false) // Default to true if not set
       } else {
         // Initialize timer document if it doesn't exist
         const initialSettings = {
           currentDrawingIndex: 0,
           nextChangeAt: Date.now() + TIMER_DURATION * 1000,
-          timerDuration: TIMER_DURATION
+          timerDuration: TIMER_DURATION,
+          timerRunning: false // Default to paused
         }
         await setDoc(timerDocRef, initialSettings)
         setTimerSettings(initialSettings)
+        setTimerRunning(false)
 
         // Mark the first drawing as revealed
         if (galleryRef.current.length > 0 && galleryRef.current[0]) {
@@ -134,12 +138,18 @@ export function FirebaseProvider({ children }) {
     if (!timerSettings) return
 
     const updateTimer = () => {
+      // If timer is not running, don't update
+      if (timerSettings.timerRunning === false) {
+        setTimeLeft(-1) // Special value to indicate paused
+        return
+      }
+
       const now = Date.now()
       const remaining = Math.max(0, Math.ceil((timerSettings.nextChangeAt - now) / 1000))
       setTimeLeft(remaining)
 
-      // If timer has expired, advance to next drawing
-      if (remaining <= 0 && galleryRef.current.length > 0) {
+      // If timer has expired and is running, advance to next drawing
+      if (remaining <= 0 && galleryRef.current.length > 0 && timerSettings.timerRunning !== false) {
         advanceToNextDrawing()
       }
     }
@@ -197,7 +207,9 @@ export function FirebaseProvider({ children }) {
     currentDrawing,
     gallery,
     messages,
-    sendMessage
+    sendMessage,
+    timerRunning,
+    timerSettings
   }
 
   return (

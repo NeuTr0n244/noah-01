@@ -9,12 +9,16 @@ const formatTime = (seconds) => {
 }
 
 export default function Timer() {
-  const { timeLeft } = useFirebase()
+  const { timeLeft, timerRunning } = useFirebase()
 
   return (
     <div className="timer-container">
-      <span className="timer-label">Next drawing in</span>
-      <span className="timer-value">{formatTime(timeLeft)}</span>
+      <span className="timer-label">
+        {timeLeft === -1 ? 'Status' : 'Next drawing in'}
+      </span>
+      <span className="timer-value">
+        {timeLeft === -1 ? 'Coming soon...' : formatTime(timeLeft)}
+      </span>
     </div>
   )
 }
