@@ -101,34 +101,15 @@ function Model({ activeCamera, drawingTexture, onCamerasReady }) {
   useEffect(() => {
     if (!gltf.scene) return
 
-    // Find paper: by name first
+    // Find paper mesh: Object_4001 with material "Board"
     let paper = null
-    const nameKeywords = ['paper', 'papel', 'folha', 'canvas', 'quadro', 'tela', 'desenho', 'drawing', 'screen', 'plane', 'sheet']
-
     gltf.scene.traverse((child) => {
       if (!child.isMesh || paper) return
-      const n = child.name.toLowerCase()
-      for (const kw of nameKeywords) {
-        if (n.includes(kw)) { paper = child; return }
+      const matName = (child.material?.name || '').toLowerCase()
+      if (matName === 'board') {
+        paper = child
       }
     })
-
-    // Fallback: largest white mesh with UVs
-    if (!paper) {
-      let best = null, bestArea = 0
-      gltf.scene.traverse((child) => {
-        if (!child.isMesh || !child.geometry?.attributes?.uv) return
-        const c = child.material?.color
-        if (c && c.r > 0.8 && c.g > 0.8 && c.b > 0.8) {
-          const box = new THREE.Box3().setFromObject(child)
-          const s = new THREE.Vector3()
-          box.getSize(s)
-          const area = s.x * s.z // flat on table = x * z
-          if (area > bestArea) { bestArea = area; best = child }
-        }
-      })
-      paper = best
-    }
 
     if (!paper) {
       console.warn('No paper mesh found')
