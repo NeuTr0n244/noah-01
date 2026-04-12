@@ -41,15 +41,7 @@ body {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 21l3-3 12-12 3 3-12 12-3 3z' fill='%23ffd700' stroke='%234a4a4a' stroke-width='1'/%3E%3Cpath d='M18 6l-12 12' stroke='%234a4a4a' stroke-width='1'/%3E%3Cpath d='M3 21l1-4' stroke='%234a4a4a' stroke-width='1'/%3E%3C/svg%3E"), auto;
 }
 
-/* Paper texture overlay */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 9999;
-}
+/* Paper texture overlay - disabled to avoid washing out 3D scene */
 
 img {
   max-width: 100%;
