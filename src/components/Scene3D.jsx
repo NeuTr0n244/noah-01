@@ -3,7 +3,7 @@ import { Suspense, useEffect, useRef } from 'react'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import * as THREE from 'three'
 
-const GLB_URL = 'https://pub-86fa2dc7ce2a48b0a619b665a49cf94a.r2.dev/saladesenho.glb'
+const GLB_URL = 'https://pub-86fa2dc7ce2a48b0a619b665a49cf94a.r2.dev/noahnew.glb'
 
 function Model() {
   const gltf = useLoader(GLTFLoader, GLB_URL)
@@ -42,8 +42,8 @@ export default function Scene3D() {
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <Canvas>
-        <ambientLight intensity={2} />
-        <directionalLight position={[5, 10, 5]} intensity={2} />
+        <ambientLight intensity={1.3} />
+        <directionalLight position={[5, 10, 5]} intensity={1.2} />
         <Suspense fallback={null}>
           <Model />
         </Suspense>
