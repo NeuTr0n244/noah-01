@@ -73,8 +73,6 @@ function Model({ activeCamera }) {
 }
 
 export default function Scene3D({ activeCamera = '/' }) {
-  const [fading, setFading] = useState(false)
-
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <Canvas
