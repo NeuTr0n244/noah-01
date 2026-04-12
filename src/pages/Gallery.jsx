@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useFirebase } from '../contexts/FirebaseContext'
 import './Gallery.css'
 
@@ -21,14 +21,11 @@ function useTransparentImage(src) {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
       const data = imageData.data
 
-      // Make white/near-white pixels transparent
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i], g = data[i + 1], b = data[i + 2]
-        // If pixel is white or near-white, make transparent
         if (r > 230 && g > 230 && b > 230) {
-          data[i + 3] = 0 // fully transparent
+          data[i + 3] = 0
         } else if (r > 200 && g > 200 && b > 200) {
-          // Semi-transparent for near-white (smooth edges)
           const whiteness = Math.min(r, g, b)
           data[i + 3] = Math.max(0, 255 - (whiteness - 200) * (255 / 55))
         }
@@ -37,41 +34,51 @@ function useTransparentImage(src) {
       ctx.putImageData(imageData, 0, 0)
       setTransparentSrc(canvas.toDataURL('image/png'))
     }
-    img.onerror = () => setTransparentSrc(src) // fallback to original
+    img.onerror = () => setTransparentSrc(src)
     img.src = src
   }, [src])
 
   return transparentSrc
 }
 
+const DRAW_DURATION = 30
+
 export default function Gallery() {
   const { gallery } = useFirebase()
   const [index, setIndex] = useState(0)
+  const [timeLeft, setTimeLeft] = useState(DRAW_DURATION)
 
   const total = gallery.length
   const current = total > 0 ? gallery[index % total] : null
   const transparentImage = useTransparentImage(current?.image)
 
-  // Auto-cycle
+  // Timer: 30s per drawing
   useEffect(() => {
-    if (total <= 1) return
+    if (total === 0) return
+
+    setTimeLeft(DRAW_DURATION)
     const interval = setInterval(() => {
-      setIndex(prev => (prev + 1) % total)
-    }, 6000)
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          setIndex(i => (i + 1) % total)
+          return DRAW_DURATION
+        }
+        return prev - 1
+      })
+    }, 1000)
+
     return () => clearInterval(interval)
   }, [total])
 
-  if (total === 0) {
-    return (
-      <div className="gallery-page">
-        <p className="gallery-empty">No drawings yet...</p>
-      </div>
-    )
-  }
+  if (total === 0) return null
+
+  const minutes = Math.floor(timeLeft / 60)
+  const seconds = timeLeft % 60
+  const timerText = `${minutes}:${seconds.toString().padStart(2, '0')}`
 
   return (
     <div className="gallery-page">
-      {/* Drawing overlay - no background, just the drawing */}
+      {/* Drawing on the paper */}
       <div className="drawing-overlay">
         {transparentImage && (
           <img
@@ -83,23 +90,10 @@ export default function Gallery() {
         )}
       </div>
 
-      {/* Navigation controls */}
-      <div className="gallery-controls">
-        <button
-          className="gallery-arrow"
-          onClick={() => setIndex((index - 1 + total) % total)}
-        >
-          &#8592;
-        </button>
-        <span className="gallery-counter">
-          {(index % total) + 1} / {total}
-        </span>
-        <button
-          className="gallery-arrow"
-          onClick={() => setIndex((index + 1) % total)}
-        >
-          &#8594;
-        </button>
+      {/* Timer on the paper */}
+      <div className="paper-timer">
+        <span className="paper-timer-label">Next drawing in</span>
+        <span className="paper-timer-time">{timerText}</span>
       </div>
     </div>
   )

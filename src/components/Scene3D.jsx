@@ -1,5 +1,5 @@
 import { Canvas, useLoader, useThree, useFrame } from '@react-three/fiber'
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import * as THREE from 'three'
 
@@ -75,18 +75,8 @@ function Model({ activeCamera }) {
 export default function Scene3D({ activeCamera = '/' }) {
   const [fading, setFading] = useState(false)
 
-  useEffect(() => {
-    setFading(true)
-    const t = setTimeout(() => setFading(false), 400)
-    return () => clearTimeout(t)
-  }, [activeCamera])
-
   return (
-    <div style={{
-      width: '100%', height: '100%',
-      opacity: fading ? 0 : 1,
-      transition: 'opacity 0.4s ease'
-    }}>
+    <div style={{ width: '100%', height: '100%' }}>
       <Canvas
         gl={{
           toneMapping: THREE.ACESFilmicToneMapping,
