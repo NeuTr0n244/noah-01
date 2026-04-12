@@ -90,13 +90,13 @@ export default function Scene3D({ activeCamera = '/' }) {
       <Canvas
         gl={{
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.0,
+          toneMappingExposure: 1.4,
           outputColorSpace: THREE.SRGBColorSpace
         }}
       >
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[5, 8, 5]} intensity={0.5} />
-        <directionalLight position={[-3, 4, -3]} intensity={0.2} />
+        <ambientLight intensity={1.0} />
+        <directionalLight position={[5, 8, 5]} intensity={0.7} />
+        <directionalLight position={[-3, 4, -3]} intensity={0.3} />
         <Suspense fallback={null}>
           <Model activeCamera={activeCamera} />
         </Suspense>
