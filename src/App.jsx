@@ -23,15 +23,16 @@ function AppContent({ userProfile, handleProfileChange }) {
 
   // Load drawing texture for Camera.002 paper view
   useEffect(() => {
-    if (location.pathname === '/gallery' && gallery.length > 0) {
-      const drawing = gallery[galleryIndex % gallery.length]
-      if (drawing?.image) {
-        textureLoader.current.load(drawing.image, (tex) => {
-          tex.flipY = false
-          tex.colorSpace = THREE.SRGBColorSpace
-          setDrawingTexture(tex)
-        })
-      }
+    if (location.pathname !== '/gallery' || gallery.length === 0) {
+      setDrawingTexture(null)
+      return
+    }
+    const drawing = gallery[galleryIndex % gallery.length]
+    if (drawing?.image) {
+      textureLoader.current.load(drawing.image, (tex) => {
+        tex.colorSpace = THREE.SRGBColorSpace
+        setDrawingTexture(tex)
+      })
     }
   }, [location.pathname, gallery, galleryIndex])
 
@@ -40,7 +41,7 @@ function AppContent({ userProfile, handleProfileChange }) {
     if (location.pathname !== '/gallery' || gallery.length <= 1) return
     const interval = setInterval(() => {
       setGalleryIndex(prev => (prev + 1) % gallery.length)
-    }, 5000)
+    }, 8000)
     return () => clearInterval(interval)
   }, [location.pathname, gallery.length])
 
@@ -75,6 +76,7 @@ function AppContent({ userProfile, handleProfileChange }) {
           <Route path="/gallery" element={
             <Gallery
               galleryIndex={galleryIndex}
+              totalDrawings={gallery.length}
               onSelectDrawing={(i) => setGalleryIndex(i)}
             />
           } />

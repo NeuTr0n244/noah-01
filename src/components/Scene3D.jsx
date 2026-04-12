@@ -82,27 +82,83 @@ function Model({ activeCamera, drawingTexture, onCamerasReady }) {
     console.log('Switched to camera:', cam.name, `[${targetIndex}]`)
   }, [activeCamera, gltf.cameras, set, size])
 
-  // Apply drawing texture to paper mesh
-  useEffect(() => {
-    if (!drawingTexture || !gltf.scene) return
+  // Find and store the paper mesh reference
+  const paperMeshRef = useRef(null)
 
+  useEffect(() => {
+    if (!gltf.scene) return
+
+    // Log all meshes to find the paper
     gltf.scene.traverse((child) => {
       if (child.isMesh) {
-        const name = child.name.toLowerCase()
-        if (
-          name.includes('paper') || name.includes('canvas') ||
-          name.includes('quadro') || name.includes('tela') ||
-          name.includes('desenho') || name.includes('drawing') ||
-          name.includes('screen')
-        ) {
-          if (child.material) {
-            child.material.map = drawingTexture
-            child.material.needsUpdate = true
-          }
-        }
+        const color = child.material?.color
+        const colorHex = color ? `#${color.getHexString()}` : 'none'
+        console.log(`Mesh: "${child.name}" | material: ${child.material?.name || 'unnamed'} | color: ${colorHex}`)
       }
     })
-  }, [drawingTexture, gltf.scene])
+
+    // Find paper mesh: look for name match first, then white material as fallback
+    let paperMesh = null
+
+    gltf.scene.traverse((child) => {
+      if (!child.isMesh || paperMesh) return
+      const name = child.name.toLowerCase()
+      if (
+        name.includes('paper') || name.includes('papel') ||
+        name.includes('folha') || name.includes('canvas') ||
+        name.includes('quadro') || name.includes('tela') ||
+        name.includes('desenho') || name.includes('drawing') ||
+        name.includes('screen') || name.includes('plane')
+      ) {
+        paperMesh = child
+      }
+    })
+
+    // Fallback: find largest white-ish flat mesh
+    if (!paperMesh) {
+      let largestArea = 0
+      gltf.scene.traverse((child) => {
+        if (!child.isMesh) return
+        const color = child.material?.color
+        if (color) {
+          const r = color.r, g = color.g, b = color.b
+          // White or near-white material
+          if (r > 0.85 && g > 0.85 && b > 0.85) {
+            const box = new THREE.Box3().setFromObject(child)
+            const size = new THREE.Vector3()
+            box.getSize(size)
+            const area = size.x * size.y
+            if (area > largestArea) {
+              largestArea = area
+              paperMesh = child
+            }
+          }
+        }
+      })
+    }
+
+    if (paperMesh) {
+      console.log('Paper mesh found:', paperMesh.name)
+      paperMeshRef.current = paperMesh
+    } else {
+      console.warn('No paper mesh found in GLB')
+    }
+  }, [gltf.scene])
+
+  // Apply drawing texture to the paper
+  useEffect(() => {
+    const mesh = paperMeshRef.current
+    if (!mesh || !drawingTexture) return
+
+    drawingTexture.flipY = true
+    drawingTexture.colorSpace = THREE.SRGBColorSpace
+    drawingTexture.needsUpdate = true
+
+    mesh.material = mesh.material.clone()
+    mesh.material.map = drawingTexture
+    mesh.material.needsUpdate = true
+    console.log('Applied drawing texture to:', mesh.name)
+  }, [drawingTexture])
 
   useFrame((state, delta) => {
     if (mixerRef.current) {
