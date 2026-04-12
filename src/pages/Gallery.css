@@ -1,14 +1,46 @@
 .gallery-page {
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0 20px 30px;
+  position: relative;
   pointer-events: none;
 }
 
+/* Drawing image positioned over the 3D paper */
+.drawing-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28vw;
+  height: 40vw;
+  max-width: 340px;
+  max-height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.drawing-on-paper {
+  max-width: 85%;
+  max-height: 85%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+  animation: drawingFadeIn 0.5s ease;
+}
+
+@keyframes drawingFadeIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Navigation controls - bottom center */
 .gallery-controls {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 20px;
@@ -18,6 +50,7 @@
   border-radius: 30px;
   padding: 8px 20px;
   pointer-events: auto;
+  z-index: 5;
 }
 
 .gallery-arrow {
@@ -44,16 +77,25 @@
   text-align: center;
 }
 
-.gallery-info {
-  pointer-events: auto;
-}
-
 .gallery-empty {
   font-family: var(--font-crayon);
   font-size: 1.1rem;
   color: rgba(255, 255, 255, 0.5);
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
   background: rgba(10, 10, 10, 0.6);
   backdrop-filter: blur(12px);
   padding: 12px 24px;
   border-radius: 20px;
+  pointer-events: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .drawing-overlay {
+    width: 50vw;
+    height: 70vw;
+  }
 }

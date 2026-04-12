@@ -5,7 +5,6 @@ import * as THREE from 'three'
 
 const GLB_URL = 'https://pub-86fa2dc7ce2a48b0a619b665a49cf94a.r2.dev/noahnew.glb'
 
-// Map page routes to camera index in the GLB
 const CAMERA_INDEX_MAP = {
   '/': 0,
   '/gallery': 1,
@@ -13,20 +12,17 @@ const CAMERA_INDEX_MAP = {
   '/community': 2
 }
 
-function Model({ activeCamera, drawingTexture, onCamerasReady }) {
+function Model({ activeCamera }) {
   const gltf = useLoader(GLTFLoader, GLB_URL)
   const { set, size } = useThree()
   const mixerRef = useRef()
   const prevIndex = useRef(-1)
 
-  // Extract cameras and setup scene on load
   useEffect(() => {
-    // Remove all lights embedded in the GLB and fix materials
+    // Remove GLB lights and fix materials
     const lightsToRemove = []
     gltf.scene.traverse((child) => {
-      if (child.isLight) {
-        lightsToRemove.push(child)
-      }
+      if (child.isLight) lightsToRemove.push(child)
       if (child.isMesh && child.material) {
         const mat = child.material
         if (mat.emissive) mat.emissive.setRGB(0, 0, 0)
@@ -34,133 +30,51 @@ function Model({ activeCamera, drawingTexture, onCamerasReady }) {
         if (mat.toneMapped !== undefined) mat.toneMapped = true
       }
     })
-    lightsToRemove.forEach((light) => {
-      console.log('Removing GLB light:', light.type, light.name)
-      light.parent?.remove(light)
-    })
+    lightsToRemove.forEach((light) => light.parent?.remove(light))
 
-    // Log available cameras
+    // Set initial camera
     if (gltf.cameras && gltf.cameras.length > 0) {
-      console.log('GLB Cameras found:', gltf.cameras.map((c, i) => `[${i}] ${c.name}`))
-      onCamerasReady?.(gltf.cameras)
-
-      // Set initial camera
-      const initialIndex = CAMERA_INDEX_MAP[activeCamera] ?? 0
-      const cam = gltf.cameras[initialIndex] || gltf.cameras[0]
+      const idx = CAMERA_INDEX_MAP[activeCamera] ?? 0
+      const cam = gltf.cameras[idx] || gltf.cameras[0]
       if (cam) {
         cam.aspect = size.width / size.height
         cam.updateProjectionMatrix()
         set({ camera: cam })
-        prevIndex.current = initialIndex
+        prevIndex.current = idx
       }
     }
 
-    // Setup animations
+    // Animations
     if (gltf.animations && gltf.animations.length > 0) {
       const mixer = new THREE.AnimationMixer(gltf.scene)
       mixerRef.current = mixer
-      gltf.animations.forEach((clip) => {
-        mixer.clipAction(clip).play()
-      })
+      gltf.animations.forEach((clip) => mixer.clipAction(clip).play())
     }
   }, [gltf, set, size])
 
-  // Switch camera directly when route changes
+  // Switch camera on route change
   useEffect(() => {
-    const targetIndex = CAMERA_INDEX_MAP[activeCamera] ?? 0
+    const idx = CAMERA_INDEX_MAP[activeCamera] ?? 0
     const cameras = gltf.cameras
-
-    if (!cameras || cameras.length === 0 || targetIndex === prevIndex.current) return
-
-    const cam = cameras[targetIndex]
+    if (!cameras || cameras.length === 0 || idx === prevIndex.current) return
+    const cam = cameras[idx]
     if (!cam) return
-
     cam.aspect = size.width / size.height
     cam.updateProjectionMatrix()
     set({ camera: cam })
-    prevIndex.current = targetIndex
-    console.log('Switched to camera:', cam.name, `[${targetIndex}]`)
+    prevIndex.current = idx
   }, [activeCamera, gltf.cameras, set, size])
 
-  // Log all meshes once on load
-  const loggedRef = useRef(false)
-  useEffect(() => {
-    if (!gltf.scene || loggedRef.current) return
-    loggedRef.current = true
-    gltf.scene.traverse((child) => {
-      if (child.isMesh) {
-        const color = child.material?.color
-        const hex = color ? `#${color.getHexString()}` : 'none'
-        const hasUV = child.geometry?.attributes?.uv ? 'yes' : 'no'
-        console.log(`Mesh: "${child.name}" | color: ${hex} | UV: ${hasUV}`)
-      }
-    })
-  }, [gltf.scene])
-
-  // Apply drawing texture to the paper mesh whenever it changes
-  useEffect(() => {
-    if (!gltf.scene) return
-
-    // Find paper mesh: Object_4001 with material "Board"
-    let paper = null
-    gltf.scene.traverse((child) => {
-      if (!child.isMesh || paper) return
-      const matName = (child.material?.name || '').toLowerCase()
-      if (matName === 'board') {
-        paper = child
-      }
-    })
-
-    if (!paper) {
-      console.warn('No paper mesh found')
-      return
-    }
-
-    console.log('Paper mesh:', paper.name)
-
-    if (drawingTexture) {
-      // Try both flipY states
-      drawingTexture.colorSpace = THREE.SRGBColorSpace
-      drawingTexture.needsUpdate = true
-
-      const newMat = paper.material.clone()
-      newMat.map = drawingTexture
-      newMat.color = new THREE.Color(1, 1, 1)
-      newMat.needsUpdate = true
-      paper.material = newMat
-      console.log('Drawing applied to paper:', paper.name)
-    } else {
-      // Reset to white when leaving gallery
-      const newMat = paper.material.clone()
-      newMat.map = null
-      newMat.color = new THREE.Color(1, 1, 1)
-      newMat.needsUpdate = true
-      paper.material = newMat
-    }
-  }, [drawingTexture, gltf.scene])
-
-  useFrame((state, delta) => {
-    if (mixerRef.current) {
-      mixerRef.current.update(delta)
-    }
+  useFrame((_, delta) => {
+    if (mixerRef.current) mixerRef.current.update(delta)
   })
 
   return <primitive object={gltf.scene} />
 }
 
-function Loader() {
-  return (
-    <mesh>
-      <sphereGeometry args={[0.5, 16, 16]} />
-      <meshBasicMaterial color="#F5C842" wireframe />
-    </mesh>
-  )
-}
-
-export default function Scene3D({ activeCamera = '/', drawingTexture = null }) {
+export default function Scene3D({ activeCamera = '/' }) {
   const [fading, setFading] = useState(false)
 
-  // Brief fade on camera switch
   useEffect(() => {
     setFading(true)
     const t = setTimeout(() => setFading(false), 400)
@@ -169,8 +83,7 @@ export default function Scene3D({ activeCamera = '/', drawingTexture = null }) {
 
   return (
     <div style={{
-      width: '100%',
-      height: '100%',
+      width: '100%', height: '100%',
       opacity: fading ? 0 : 1,
       transition: 'opacity 0.4s ease'
     }}>
@@ -184,11 +97,8 @@ export default function Scene3D({ activeCamera = '/', drawingTexture = null }) {
         <ambientLight intensity={0.7} />
         <directionalLight position={[5, 8, 5]} intensity={0.5} />
         <directionalLight position={[-3, 4, -3]} intensity={0.2} />
-        <Suspense fallback={<Loader />}>
-          <Model
-            activeCamera={activeCamera}
-            drawingTexture={drawingTexture}
-          />
+        <Suspense fallback={null}>
+          <Model activeCamera={activeCamera} />
         </Suspense>
       </Canvas>
     </div>
