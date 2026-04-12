@@ -42,6 +42,26 @@ function Model({ activeCamera, drawingTexture }) {
       }
     }
 
+    // Remove all lights embedded in the GLB and fix overblown materials
+    const lightsToRemove = []
+    gltf.scene.traverse((child) => {
+      if (child.isLight) {
+        lightsToRemove.push(child)
+      }
+      if (child.isMesh && child.material) {
+        const mat = child.material
+        // Kill emissive glow
+        if (mat.emissive) mat.emissive.setRGB(0, 0, 0)
+        if (mat.emissiveIntensity !== undefined) mat.emissiveIntensity = 0
+        // Reduce overexposed materials
+        if (mat.toneMapped !== undefined) mat.toneMapped = true
+      }
+    })
+    lightsToRemove.forEach((light) => {
+      console.log('Removing GLB light:', light.type, light.name)
+      light.parent?.remove(light)
+    })
+
     // Setup animations
     if (gltf.animations && gltf.animations.length > 0) {
       const mixer = new THREE.AnimationMixer(gltf.scene)
@@ -142,10 +162,12 @@ export default function Scene3D({ activeCamera = '/', drawingTexture = null }) {
       <Canvas
         gl={{
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 0.25,
+          toneMappingExposure: 0.6,
           outputColorSpace: THREE.SRGBColorSpace
         }}
       >
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[5, 8, 5]} intensity={0.4} />
         <Suspense fallback={<Loader />}>
           <Model activeCamera={activeCamera} drawingTexture={drawingTexture} />
         </Suspense>
