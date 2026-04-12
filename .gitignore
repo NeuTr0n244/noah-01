@@ -22,3 +22,6 @@ dist/
 .claude/
 
 .vercel
+
+.vercel
+.env*.local
