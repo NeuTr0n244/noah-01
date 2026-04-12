@@ -8,86 +8,19 @@
   pointer-events: none;
 }
 
-/* Connection Status */
-.connection-status {
-  text-align: center;
-  font-family: var(--font-crayon);
-  font-size: 0.85rem;
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  margin-bottom: 0.5rem;
-}
-
-.connection-status p {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.connection-status.connected {
-  color: #4ade80;
-  background: rgba(74, 222, 128, 0.15);
-  animation: fadeOut 2s ease forwards;
-}
-
-.connection-status.failed {
-  color: #ff6b6b;
-  background: rgba(255, 107, 107, 0.15);
-}
-
-.connection-status.offline {
-  color: #fbbf24;
-  background: rgba(251, 191, 36, 0.15);
-}
-
-.connection-status.offline.subtle {
-  font-size: 0.7rem;
-  padding: 0.25rem 0.5rem;
-  background: transparent;
-  border: none;
-  color: rgba(251, 191, 36, 0.6);
-  margin-bottom: 0.25rem;
-}
-
-@keyframes fadeOut {
-  0%, 70% { opacity: 1; }
-  100% { opacity: 0; display: none; }
-}
-
-.retry-btn {
-  font-family: var(--font-crayon);
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 0.4rem 0.8rem;
-  background: #F5C842;
-  color: #2d2d2d;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 0.5rem;
-  transition: all 0.2s ease;
-}
-
-.retry-btn:hover {
-  background: #ffd966;
-  transform: translateY(-1px);
-}
-
 /* Drawing card container - Right side glass */
 .drawing-card-container {
-  width: clamp(400px, 38vw, 600px);
+  width: clamp(340px, 30vw, 500px);
   max-height: 75vh;
-  background: rgba(15, 15, 15, 0.75);
+  background: rgba(10, 10, 10, 0.65);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 24px;
-  padding: 20px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   z-index: 15;
   pointer-events: auto;
   margin-right: 40px;
@@ -96,8 +29,8 @@
 .drawing-card-header {
   display: flex;
   justify-content: center;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .drawing-frame {
@@ -107,12 +40,9 @@
   overflow: hidden;
   aspect-ratio: 3 / 4;
   width: 100%;
-  max-width: 450px;
+  max-width: 400px;
   margin: 0 auto;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.12),
-    0 1px 2px rgba(0, 0, 0, 0.24),
-    0 4px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .drawing-display {
@@ -121,7 +51,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: 8px;
 }
 
 .current-drawing {
@@ -143,22 +73,14 @@
 }
 
 @keyframes revealDrawing {
-  0% {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  50% {
-    transform: scale(1.02);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  0% { opacity: 0; transform: scale(0.9); }
+  50% { transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 .drawing-placeholder {
   font-family: var(--font-crayon);
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: rgba(74, 74, 74, 0.6);
   text-align: center;
   padding: 2rem;
@@ -228,7 +150,7 @@
 
 .drawing-secret-text {
   font-family: var(--font-crayon);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #4a4a4a;
   text-align: center;
   animation: bounce 1s ease-in-out infinite;
@@ -237,41 +159,6 @@
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
-}
-
-/* Gallery inline at bottom of card */
-.gallery-inline {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  padding: 12px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.gallery-inline::-webkit-scrollbar {
-  height: 6px;
-}
-
-.gallery-inline::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 3px;
-}
-
-.gallery-thumb-inline {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.2s;
-  flex-shrink: 0;
-  background: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-}
-
-.gallery-thumb-inline:hover {
-  transform: scale(1.05);
-  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* Modal */
@@ -294,7 +181,7 @@
 .modal-content {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 1.5rem;
   max-width: 450px;
   width: 100%;
@@ -302,19 +189,13 @@
   overflow: auto;
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   animation: modalSlide 0.3s ease;
 }
 
 @keyframes modalSlide {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .modal-close {
@@ -334,7 +215,6 @@
   justify-content: center;
   line-height: 1;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   z-index: 1;
 }
 
@@ -345,10 +225,8 @@
 
 .modal-image {
   width: 100%;
-  border-radius: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
   background: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .modal-info {
@@ -377,7 +255,7 @@
   font-weight: 600;
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -385,13 +263,11 @@
 .modal-download {
   background: #F5C842;
   color: #2d2d2d;
-  box-shadow: 0 4px 12px rgba(245, 200, 66, 0.3);
 }
 
 .modal-download:hover {
   background: #ffd966;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(245, 200, 66, 0.4);
 }
 
 /* Responsive */
@@ -409,14 +285,5 @@
 
   .drawing-frame {
     min-height: 300px;
-  }
-
-  .drawing-secret-text {
-    font-size: 1rem;
-  }
-
-  .gallery-thumb-inline {
-    width: 70px;
-    height: 70px;
   }
 }

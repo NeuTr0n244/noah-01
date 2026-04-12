@@ -19,7 +19,7 @@
   overflow: hidden;
 }
 
-/* Fullscreen 3D Background - Home only */
+/* Fullscreen 3D Background - All pages */
 .scene-background {
   position: fixed;
   top: 0;
@@ -30,7 +30,7 @@
   pointer-events: none;
 }
 
-/* Título - Topo esquerdo */
+/* Title - Top left */
 .app-title {
   position: fixed;
   top: 20px;
@@ -44,7 +44,7 @@
   margin: 0;
 }
 
-/* Profile - Topo direito */
+/* Profile - Top right */
 .profile-button {
   position: fixed;
   top: 20px;
@@ -52,7 +52,7 @@
   z-index: 100;
 }
 
-/* Navegação - Centro topo */
+/* Navigation - Center top */
 .navigation-bar {
   position: fixed;
   top: 20px;
@@ -70,8 +70,7 @@
   overflow: visible;
 }
 
-
-/* Chat - Canto inferior esquerdo */
+/* Chat - Bottom left */
 .chat-box {
   position: fixed;
   bottom: 12px;
@@ -88,7 +87,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
-/* Conteúdo principal */
+/* Main content - transparent overlay on 3D */
 .main-content {
   position: fixed;
   top: 0;
@@ -117,7 +116,6 @@
     padding: 8px;
   }
 
-  /* Hide 3D on mobile for performance */
   .scene-background {
     display: none;
   }

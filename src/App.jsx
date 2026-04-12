@@ -1,57 +1,90 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { FirebaseProvider } from './contexts/FirebaseContext'
+import { FirebaseProvider, useFirebase } from './contexts/FirebaseContext'
 import Scene3D from './components/Scene3D'
 import Navigation from './components/Navigation'
 import UserProfile from './components/UserProfile'
-import Timer from './components/Timer/Timer'
 import Chat from './components/Chat/Chat'
 import Home from './pages/Home'
 import Gallery from './pages/Gallery'
 import About from './pages/About'
 import Community from './pages/Community'
 import Admin from './pages/Admin'
+import * as THREE from 'three'
 import './App.css'
 
 function AppContent({ userProfile, handleProfileChange }) {
   const location = useLocation()
   const isHomePage = location.pathname === '/'
+  const { gallery } = useFirebase()
+  const [drawingTexture, setDrawingTexture] = useState(null)
+  const [galleryIndex, setGalleryIndex] = useState(0)
+  const textureLoader = useRef(new THREE.TextureLoader())
+
+  // Load drawing texture for Camera.002 paper view
+  useEffect(() => {
+    if (location.pathname === '/gallery' && gallery.length > 0) {
+      const drawing = gallery[galleryIndex % gallery.length]
+      if (drawing?.image) {
+        textureLoader.current.load(drawing.image, (tex) => {
+          tex.flipY = false
+          tex.colorSpace = THREE.SRGBColorSpace
+          setDrawingTexture(tex)
+        })
+      }
+    }
+  }, [location.pathname, gallery, galleryIndex])
+
+  // Auto-cycle drawings on gallery page
+  useEffect(() => {
+    if (location.pathname !== '/gallery' || gallery.length <= 1) return
+    const interval = setInterval(() => {
+      setGalleryIndex(prev => (prev + 1) % gallery.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [location.pathname, gallery.length])
 
   return (
     <div className="app-container">
 
-      {/* Fullscreen 3D Background - Home only */}
-      {isHomePage && (
-        <div className="scene-background">
-          <Scene3D />
-        </div>
-      )}
+      {/* Fullscreen 3D Background - ALL pages */}
+      <div className="scene-background">
+        <Scene3D
+          activeCamera={location.pathname}
+          drawingTexture={location.pathname === '/gallery' ? drawingTexture : null}
+        />
+      </div>
 
-      {/* Título - Topo esquerdo */}
+      {/* Title - Top left */}
       <h1 className="app-title">Sam Universe</h1>
 
-      {/* Profile - Topo direito */}
+      {/* Profile - Top right */}
       <div className="profile-button">
         <UserProfile onProfileChange={handleProfileChange} />
       </div>
 
-      {/* Navegação - Centro topo */}
+      {/* Navigation - Center top */}
       <nav className="navigation-bar">
         <Navigation />
       </nav>
 
-      {/* Conteúdo principal - Centro */}
+      {/* Page content overlay */}
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/gallery" element={
+            <Gallery
+              galleryIndex={galleryIndex}
+              onSelectDrawing={(i) => setGalleryIndex(i)}
+            />
+          } />
           <Route path="/about" element={<About />} />
           <Route path="/community" element={<Community />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>
 
-      {/* Chat - Canto inferior esquerdo - Home only */}
+      {/* Chat - Bottom left - Home only */}
       {isHomePage && (
         <div className="chat-box">
           <Chat userProfile={userProfile} />

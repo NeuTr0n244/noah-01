@@ -3,11 +3,11 @@ import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestor
 import { db } from '../firebase'
 import './Gallery.css'
 
-export default function Gallery() {
+export default function Gallery({ galleryIndex = 0, onSelectDrawing }) {
   const [revealedDrawings, setRevealedDrawings] = useState([])
   const [selectedImage, setSelectedImage] = useState(null)
 
-  // Listen to revealed drawings only (ordered by number)
+  // Listen to revealed drawings only
   useEffect(() => {
     const revealedQuery = query(
       collection(db, 'drawings'),
@@ -29,7 +29,6 @@ export default function Gallery() {
     return () => unsubscribe()
   }, [])
 
-  // Download image function
   const handleDownload = useCallback((image, name) => {
     const link = document.createElement('a')
     link.href = image
@@ -43,33 +42,69 @@ export default function Gallery() {
     setSelectedImage(null)
   }, [])
 
+  const currentDrawing = revealedDrawings[galleryIndex % Math.max(1, revealedDrawings.length)]
+
   return (
     <div className="gallery-page">
-      <div className="gallery-container">
-        <h1 className="gallery-title">Sam's Drawings</h1>
+      {/* Bottom gallery strip */}
+      <div className="gallery-strip">
+        <div className="gallery-strip-inner">
+          <h2 className="gallery-strip-title">Sam's Drawings</h2>
 
-        {revealedDrawings.length === 0 ? (
-          <p className="gallery-empty">No drawings revealed yet! Check back soon.</p>
-        ) : (
-          <div className="gallery-grid">
-            {revealedDrawings.map((item) => (
-              <div
-                key={item.id}
-                className="gallery-item"
-                onClick={() => setSelectedImage(item)}
-              >
-                <div className="gallery-paper">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="gallery-image"
-                  />
+          {revealedDrawings.length === 0 ? (
+            <p className="gallery-empty">No drawings yet...</p>
+          ) : (
+            <>
+              {/* Current drawing info */}
+              {currentDrawing && (
+                <div className="gallery-current-info">
+                  <span className="gallery-current-name">{currentDrawing.name}</span>
+                  <span className="gallery-current-index">
+                    {(galleryIndex % revealedDrawings.length) + 1} / {revealedDrawings.length}
+                  </span>
                 </div>
-                <p className="gallery-item-name">{item.name}</p>
+              )}
+
+              {/* Thumbnail strip */}
+              <div className="gallery-thumbs">
+                {revealedDrawings.map((item, i) => (
+                  <div
+                    key={item.id}
+                    className={`gallery-thumb ${i === galleryIndex % revealedDrawings.length ? 'active' : ''}`}
+                    onClick={() => onSelectDrawing?.(i)}
+                  >
+                    <img src={item.image} alt={item.name} />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
+
+              {/* Navigation arrows */}
+              <div className="gallery-nav">
+                <button
+                  className="gallery-nav-btn"
+                  onClick={() => onSelectDrawing?.((galleryIndex - 1 + revealedDrawings.length) % revealedDrawings.length)}
+                >
+                  Prev
+                </button>
+                <button
+                  className="gallery-nav-btn"
+                  onClick={() => {
+                    const drawing = revealedDrawings[galleryIndex % revealedDrawings.length]
+                    if (drawing) setSelectedImage(drawing)
+                  }}
+                >
+                  View Full
+                </button>
+                <button
+                  className="gallery-nav-btn"
+                  onClick={() => onSelectDrawing?.((galleryIndex + 1) % revealedDrawings.length)}
+                >
+                  Next
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Image Modal */}
@@ -80,7 +115,6 @@ export default function Gallery() {
             <img src={selectedImage.image} alt={selectedImage.name} className="modal-image" />
             <div className="modal-info">
               <h3 className="modal-title">{selectedImage.name}</h3>
-              <p className="modal-time">Created at {new Date(selectedImage.timestamp).toLocaleTimeString()}</p>
               <button
                 className="modal-btn modal-download"
                 onClick={() => handleDownload(selectedImage.image, selectedImage.name)}

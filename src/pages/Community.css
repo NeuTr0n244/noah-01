@@ -5,107 +5,109 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
-  background: #0a0a0a;
-  pointer-events: auto;
+  padding: 80px 20px 20px;
+  pointer-events: none;
 }
 
 .community-title {
   font-family: 'Gaegu', cursive;
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   font-weight: 700;
   color: #F5C842;
-  margin: 0 0 30px;
+  margin: 0 0 20px;
   text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
 }
 
 .community-card {
-  background: rgba(20, 20, 20, 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
-  padding: 40px 50px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 32px 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   text-align: center;
+  pointer-events: auto;
 }
 
 .social-buttons {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   justify-content: center;
-  margin-bottom: 35px;
+  margin-bottom: 28px;
 }
 
 .social-btn {
   font-family: 'Gaegu', cursive;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  padding: 15px 35px;
-  border-radius: 20px;
+  padding: 12px 28px;
+  border-radius: 10px;
   text-decoration: none;
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .x-btn {
-  background: linear-gradient(180deg, #333 0%, #000 100%);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
-  box-shadow: 0 4px 0 #000, 0 6px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .x-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 7px 0 #000, 0 9px 20px rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
 }
 
 .community-btn {
-  background: linear-gradient(180deg, #7dd3fc 0%, #38bdf8 100%);
-  color: white;
-  box-shadow: 0 4px 0 #0ea5e9, 0 6px 15px rgba(0, 0, 0, 0.15);
+  background: rgba(245, 200, 66, 0.15);
+  color: #F5C842;
+  border: 1px solid rgba(245, 200, 66, 0.25);
 }
 
 .community-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 7px 0 #0ea5e9, 0 9px 20px rgba(0, 0, 0, 0.2);
+  background: rgba(245, 200, 66, 0.25);
+  transform: translateY(-2px);
 }
 
 .contract-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
 }
 
 .contract-label {
   font-family: 'Gaegu', cursive;
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .contract-value {
   font-family: 'Gaegu', cursive;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* Responsive */
 @media (max-width: 600px) {
   .community-title {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 
   .community-card {
-    padding: 30px 25px;
+    padding: 24px 20px;
   }
 
   .social-buttons {
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
   }
 
   .social-btn {
-    padding: 12px 30px;
-    font-size: 1.2rem;
+    padding: 10px 24px;
+    font-size: 1.1rem;
   }
 }
