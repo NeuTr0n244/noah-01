@@ -65,3 +65,24 @@
     font-size: 0.95rem;
   }
 }
+
+.about-twitter-btn {
+  display: inline-block;
+  margin-top: 20px;
+  align-self: center;
+  font-family: 'Gaegu', cursive;
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 10px;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.2s ease;
+}
+
+.about-twitter-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}

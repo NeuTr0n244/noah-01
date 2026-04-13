@@ -8,9 +8,9 @@ const GLB_URL = 'https://pub-86fa2dc7ce2a48b0a619b665a49cf94a.r2.dev/noahnew.glb
 
 const CAMERA_INDEX_MAP = {
   '/': 0,
-  '/gallery': 1,
-  '/about': 2,
-  '/community': 2
+  '/drawing': 1,
+  '/gallery': 2,
+  '/about': 2
 }
 
 function Model({ activeCamera }) {

@@ -23,6 +23,15 @@ export default function About() {
           With love and lots of scribbles,<br />
           <span className="signature-name">Sam</span>
         </p>
+
+        <a
+          href="https://x.com/Noahdrawing"
+          className="about-twitter-btn"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Follow on X
+        </a>
       </div>
     </div>
   )

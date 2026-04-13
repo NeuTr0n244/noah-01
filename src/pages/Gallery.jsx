@@ -1,100 +1,92 @@
-import { useState, useEffect } from 'react'
-import { useFirebase } from '../contexts/FirebaseContext'
+import { useState, useCallback, useEffect } from 'react'
+import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
+import { db } from '../firebase'
 import './Gallery.css'
 
-// Remove white background from image using canvas
-function useTransparentImage(src) {
-  const [transparentSrc, setTransparentSrc] = useState(null)
-
-  useEffect(() => {
-    if (!src) { setTransparentSrc(null); return }
-
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.onload = () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = img.width
-      canvas.height = img.height
-      const ctx = canvas.getContext('2d')
-      ctx.drawImage(img, 0, 0)
-
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      const data = imageData.data
-
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i], g = data[i + 1], b = data[i + 2]
-        if (r > 230 && g > 230 && b > 230) {
-          data[i + 3] = 0
-        } else if (r > 200 && g > 200 && b > 200) {
-          const whiteness = Math.min(r, g, b)
-          data[i + 3] = Math.max(0, 255 - (whiteness - 200) * (255 / 55))
-        }
-      }
-
-      ctx.putImageData(imageData, 0, 0)
-      setTransparentSrc(canvas.toDataURL('image/png'))
-    }
-    img.onerror = () => setTransparentSrc(src)
-    img.src = src
-  }, [src])
-
-  return transparentSrc
-}
-
-const DRAW_DURATION = 30
-
 export default function Gallery() {
-  const { gallery } = useFirebase()
-  const [index, setIndex] = useState(0)
-  const [timeLeft, setTimeLeft] = useState(DRAW_DURATION)
+  const [revealedDrawings, setRevealedDrawings] = useState([])
+  const [selectedImage, setSelectedImage] = useState(null)
 
-  const total = gallery.length
-  const current = total > 0 ? gallery[index % total] : null
-  const transparentImage = useTransparentImage(current?.image)
-
-  // Timer: 30s per drawing
   useEffect(() => {
-    if (total === 0) return
+    const revealedQuery = query(
+      collection(db, 'drawings'),
+      where('revealed', '==', true),
+      orderBy('order', 'asc')
+    )
 
-    setTimeLeft(DRAW_DURATION)
-    const interval = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          setIndex(i => (i + 1) % total)
-          return DRAW_DURATION
-        }
-        return prev - 1
-      })
-    }, 1000)
+    const unsubscribe = onSnapshot(revealedQuery, (snapshot) => {
+      const drawings = snapshot.docs.map(doc => ({
+        id: doc.id,
+        image: doc.data().imageUrl,
+        name: doc.data().title,
+        order: doc.data().order || 0,
+        timestamp: doc.data().createdAt?.toMillis() || Date.now()
+      }))
+      setRevealedDrawings(drawings)
+    })
 
-    return () => clearInterval(interval)
-  }, [total])
+    return () => unsubscribe()
+  }, [])
 
-  if (total === 0) return null
+  const handleDownload = useCallback((image, name) => {
+    const link = document.createElement('a')
+    link.href = image
+    link.download = `sam-drawing-${name.replace(/\s+/g, '-')}.png`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }, [])
 
-  const minutes = Math.floor(timeLeft / 60)
-  const seconds = timeLeft % 60
-  const timerText = `${minutes}:${seconds.toString().padStart(2, '0')}`
+  const closeModal = useCallback(() => {
+    setSelectedImage(null)
+  }, [])
 
   return (
     <div className="gallery-page">
-      {/* Drawing on the paper */}
-      <div className="drawing-overlay">
-        {transparentImage && (
-          <img
-            key={current?.id || index}
-            src={transparentImage}
-            alt={current?.name || 'Drawing'}
-            className="drawing-on-paper"
-          />
+      <div className="gallery-container">
+        <h1 className="gallery-title">Sam's Drawings</h1>
+
+        {revealedDrawings.length === 0 ? (
+          <p className="gallery-empty">No drawings revealed yet! Check back soon.</p>
+        ) : (
+          <div className="gallery-grid">
+            {revealedDrawings.map((item) => (
+              <div
+                key={item.id}
+                className="gallery-item"
+                onClick={() => setSelectedImage(item)}
+              >
+                <div className="gallery-paper">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="gallery-image"
+                  />
+                </div>
+                <p className="gallery-item-name">{item.name}</p>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
-      {/* Timer on the paper */}
-      <div className="paper-timer">
-        <span className="paper-timer-label">Next drawing in</span>
-        <span className="paper-timer-time">{timerText}</span>
-      </div>
+      {selectedImage && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={closeModal}>×</button>
+            <img src={selectedImage.image} alt={selectedImage.name} className="modal-image" />
+            <div className="modal-info">
+              <h3 className="modal-title">{selectedImage.name}</h3>
+              <button
+                className="modal-btn modal-download"
+                onClick={() => handleDownload(selectedImage.image, selectedImage.name)}
+              >
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

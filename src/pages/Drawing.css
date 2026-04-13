@@ -1,0 +1,71 @@
+.drawing-page {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  pointer-events: none;
+}
+
+.drawing-overlay {
+  position: absolute;
+  top: 46%;
+  left: 53%;
+  transform: translate(-50%, -50%);
+  width: 24vw;
+  height: 34vw;
+  max-width: 310px;
+  max-height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.drawing-on-paper {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  animation: drawingFadeIn 0.5s ease;
+}
+
+@keyframes drawingFadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.paper-timer {
+  position: absolute;
+  top: 68%;
+  left: 53%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.paper-timer-label {
+  font-family: var(--font-crayon);
+  font-size: 0.7rem;
+  color: rgba(120, 120, 120, 0.6);
+}
+
+.paper-timer-time {
+  font-family: 'Caveat', cursive;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: rgba(80, 80, 80, 0.7);
+}
+
+@media (max-width: 768px) {
+  .drawing-overlay {
+    width: 50vw;
+    height: 70vw;
+  }
+
+  .paper-timer {
+    top: 75%;
+  }
+}

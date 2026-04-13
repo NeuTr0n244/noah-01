@@ -4,9 +4,9 @@ import './Navigation.css'
 
 const navItems = [
   { path: '/', label: 'Home' },
+  { path: '/drawing', label: 'Drawing' },
   { path: '/gallery', label: 'Gallery' },
-  { path: '/about', label: 'About' },
-  { path: '/community', label: 'Community' }
+  { path: '/about', label: 'About' }
 ]
 
 export default function Navigation() {

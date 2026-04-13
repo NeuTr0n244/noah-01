@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useFirebase } from '../../contexts/FirebaseContext'
 import './Chat.css'
 
-// Generate a consistent color based on username
 const getAvatarColor = (username) => {
   const colors = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
@@ -17,19 +16,18 @@ const getAvatarColor = (username) => {
   return colors[Math.abs(hash) % colors.length]
 }
 
-// Get initial from username
 const getInitial = (username) => {
   if (!username) return '?'
   return username.charAt(0).toUpperCase()
 }
 
-// Format timestamp
 const formatTime = (timestamp) => {
   const date = new Date(timestamp)
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
 const STORAGE_KEY_USERNAME = 'sam_chat_username'
+const STORAGE_KEY_AVATAR = 'sam_chat_avatar'
 const MAX_MESSAGE_LENGTH = 200
 
 export default function Chat({ userProfile }) {
@@ -39,9 +37,11 @@ export default function Chat({ userProfile }) {
   const [isJoined, setIsJoined] = useState(false)
   const [newMessage, setNewMessage] = useState('')
   const [usernameInput, setUsernameInput] = useState('')
+  const [avatarPreview, setAvatarPreview] = useState(null)
 
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
+  const fileInputRef = useRef(null)
 
   // Sync with user profile
   useEffect(() => {
@@ -52,38 +52,63 @@ export default function Chat({ userProfile }) {
     }
   }, [userProfile])
 
-  // Load username from localStorage on mount
+  // Load from localStorage on mount
   useEffect(() => {
     const savedUsername = localStorage.getItem(STORAGE_KEY_USERNAME)
+    const savedAvatar = localStorage.getItem(STORAGE_KEY_AVATAR)
     if (savedUsername && !userProfile?.username) {
       setUsername(savedUsername)
+      setAvatar(savedAvatar || null)
       setIsJoined(true)
     }
   }, [])
 
-  // Scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Handle joining chat
+  // Handle avatar file selection
+  const handleAvatarSelect = useCallback((e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      // Resize to small thumbnail
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = 64
+        canvas.height = 64
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, 64, 64)
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.7)
+        setAvatarPreview(dataUrl)
+      }
+      img.src = ev.target.result
+    }
+    reader.readAsDataURL(file)
+  }, [])
+
   const handleJoin = useCallback((e) => {
     e.preventDefault()
     const trimmedName = usernameInput.trim()
     if (trimmedName.length >= 2 && trimmedName.length <= 20) {
       setUsername(trimmedName)
+      setAvatar(avatarPreview)
       setIsJoined(true)
       localStorage.setItem(STORAGE_KEY_USERNAME, trimmedName)
+      if (avatarPreview) {
+        localStorage.setItem(STORAGE_KEY_AVATAR, avatarPreview)
+      }
     }
-  }, [usernameInput])
+  }, [usernameInput, avatarPreview])
 
-  // Handle sending message
   const handleSend = useCallback(async (e) => {
     e.preventDefault()
     const trimmedMessage = newMessage.trim()
     if (trimmedMessage.length === 0 || trimmedMessage.length > MAX_MESSAGE_LENGTH) return
 
-    // Send to Firebase
     await sendMessage({
       text: trimmedMessage,
       username,
@@ -95,7 +120,6 @@ export default function Chat({ userProfile }) {
     inputRef.current?.focus()
   }, [newMessage, username, avatar, sendMessage])
 
-  // Handle input change with character limit
   const handleMessageChange = (e) => {
     const value = e.target.value
     if (value.length <= MAX_MESSAGE_LENGTH) {
@@ -103,7 +127,6 @@ export default function Chat({ userProfile }) {
     }
   }
 
-  // Render avatar (image or colored initial)
   const renderAvatar = (avatarUrl, name, color, className = 'message-avatar') => {
     if (avatarUrl) {
       return (
@@ -122,20 +145,40 @@ export default function Chat({ userProfile }) {
     )
   }
 
-  // Username entry form
+  // Join form
   if (!isJoined) {
     return (
       <div className="chat-container">
         <div className="chat-header">
           <h3 className="chat-title">Chat Room</h3>
-          <p className="chat-subtitle">Suggest what Sam should draw next!</p>
         </div>
         <form className="join-form" onSubmit={handleJoin}>
-          <p className="join-hint">Set your profile in the top right corner, or enter a name below:</p>
+          {/* Avatar picker */}
+          <div
+            className="join-avatar-picker"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {avatarPreview ? (
+              <img src={avatarPreview} alt="Avatar" className="join-avatar-img" />
+            ) : (
+              <span className="join-avatar-placeholder">+</span>
+            )}
+            <span className="join-avatar-label">
+              {avatarPreview ? 'Change photo' : 'Add photo'}
+            </span>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={handleAvatarSelect}
+          />
+
           <input
             type="text"
             className="join-input"
-            placeholder="Enter your name..."
+            placeholder="Your name..."
             value={usernameInput}
             onChange={(e) => setUsernameInput(e.target.value)}
             maxLength={20}
@@ -165,7 +208,7 @@ export default function Chat({ userProfile }) {
         {messages.length === 0 ? (
           <div className="no-messages">
             <p>No messages yet!</p>
-            <p>Be the first to suggest a drawing!</p>
+            <p>Suggest a drawing!</p>
           </div>
         ) : (
           messages.map((msg, index) => (

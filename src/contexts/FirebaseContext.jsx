@@ -79,6 +79,7 @@ export function FirebaseProvider({ children }) {
         image: doc.data().imageUrl,
         name: doc.data().title,
         order: doc.data().order || 0,
+        revealed: doc.data().revealed || false,
         timestamp: doc.data().createdAt?.toMillis() || Date.now()
       }))
       setGallery(drawings)

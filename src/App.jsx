@@ -6,15 +6,14 @@ import Navigation from './components/Navigation'
 import UserProfile from './components/UserProfile'
 import Chat from './components/Chat/Chat'
 import Home from './pages/Home'
+import Drawing from './pages/Drawing'
 import Gallery from './pages/Gallery'
 import About from './pages/About'
-import Community from './pages/Community'
 import Admin from './pages/Admin'
 import './App.css'
 
 function AppContent({ userProfile, handleProfileChange }) {
   const location = useLocation()
-  const isHomePage = location.pathname === '/'
 
   return (
     <div className="app-container">
@@ -41,19 +40,17 @@ function AppContent({ userProfile, handleProfileChange }) {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/drawing" element={<Drawing />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/about" element={<About />} />
-          <Route path="/community" element={<Community />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>
 
-      {/* Chat - Bottom left - Home only */}
-      {isHomePage && (
-        <div className="chat-box">
-          <Chat userProfile={userProfile} />
-        </div>
-      )}
+      {/* Chat - ALL pages */}
+      <div className="chat-box">
+        <Chat userProfile={userProfile} />
+      </div>
 
     </div>
   )
