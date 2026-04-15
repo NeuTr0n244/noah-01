@@ -52,13 +52,13 @@ export default function Chat({ userProfile }) {
     }
   }, [userProfile])
 
-  // Load from localStorage on mount
+  // Load from localStorage on mount (only if both username AND avatar exist)
   useEffect(() => {
     const savedUsername = localStorage.getItem(STORAGE_KEY_USERNAME)
     const savedAvatar = localStorage.getItem(STORAGE_KEY_AVATAR)
-    if (savedUsername && !userProfile?.username) {
+    if (savedUsername && savedAvatar && !userProfile?.username) {
       setUsername(savedUsername)
-      setAvatar(savedAvatar || null)
+      setAvatar(savedAvatar)
       setIsJoined(true)
     }
   }, [])
@@ -93,14 +93,13 @@ export default function Chat({ userProfile }) {
   const handleJoin = useCallback((e) => {
     e.preventDefault()
     const trimmedName = usernameInput.trim()
-    if (trimmedName.length >= 2 && trimmedName.length <= 20) {
+    // Require BOTH name and avatar
+    if (trimmedName.length >= 2 && trimmedName.length <= 20 && avatarPreview) {
       setUsername(trimmedName)
       setAvatar(avatarPreview)
       setIsJoined(true)
       localStorage.setItem(STORAGE_KEY_USERNAME, trimmedName)
-      if (avatarPreview) {
-        localStorage.setItem(STORAGE_KEY_AVATAR, avatarPreview)
-      }
+      localStorage.setItem(STORAGE_KEY_AVATAR, avatarPreview)
     }
   }, [usernameInput, avatarPreview])
 
@@ -188,13 +187,19 @@ export default function Chat({ userProfile }) {
           <button
             type="submit"
             className="join-button"
-            disabled={usernameInput.trim().length < 2}
+            disabled={usernameInput.trim().length < 2 || !avatarPreview}
           >
-            Join Chat
+            {!avatarPreview ? 'Add a photo first' : usernameInput.trim().length < 2 ? 'Type your name' : 'Join Chat'}
           </button>
         </form>
       </div>
     )
+  }
+
+  const handleEditProfile = () => {
+    setUsernameInput(username)
+    setAvatarPreview(avatar)
+    setIsJoined(false)
   }
 
   // Chat interface
@@ -202,6 +207,13 @@ export default function Chat({ userProfile }) {
     <div className="chat-container">
       <div className="chat-header">
         <h3 className="chat-title">Chat Room</h3>
+        <button
+          className="edit-profile-btn"
+          onClick={handleEditProfile}
+          title="Edit name or photo"
+        >
+          ✎
+        </button>
       </div>
 
       <div className="messages-container">

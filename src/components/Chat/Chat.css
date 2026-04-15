@@ -16,6 +16,31 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   text-align: center;
   flex-shrink: 0;
+  position: relative;
+}
+
+.edit-profile-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.6);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.edit-profile-btn:hover {
+  color: #F5C842;
+  border-color: rgba(245, 200, 66, 0.4);
 }
 
 .chat-title {
