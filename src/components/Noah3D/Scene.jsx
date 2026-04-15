@@ -22,7 +22,7 @@ function LoadingScreen() {
         }}
       >
         <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>
-          Sam is waking up...
+          Ollie is waking up...
         </div>
       </div>
     </Html>

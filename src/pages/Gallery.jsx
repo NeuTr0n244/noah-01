@@ -44,7 +44,7 @@ export default function Gallery() {
   return (
     <div className="gallery-page">
       <div className="gallery-container">
-        <h1 className="gallery-title">Sam's Drawings</h1>
+        <h1 className="gallery-title">Ollie's Drawings</h1>
 
         {revealedDrawings.length === 0 ? (
           <p className="gallery-empty">No drawings revealed yet! Check back soon.</p>

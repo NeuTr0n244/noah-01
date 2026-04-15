@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useFirebase } from '../contexts/FirebaseContext'
 import './Drawing.css'
 
@@ -41,9 +41,65 @@ function useTransparentImage(src) {
   return transparentSrc
 }
 
+const INTRO_TEXT = "Hey there! My name is Ollie and I'm just a kid who loves to draw. Every 30 seconds I make a new drawing. You can tell me what to draw in the chat. Don't worry if it's silly... the sillier, the better!"
+
 export default function Drawing() {
   const { currentDrawing, timeLeft, timerRunning } = useFirebase()
   const transparentImage = useTransparentImage(currentDrawing)
+  const audioRef = useRef(null)
+  const [muted, setMuted] = useState(false)
+  const [caption, setCaption] = useState('')
+  const [showCaption, setShowCaption] = useState(false)
+
+  // Play intro audio when entering the page
+  useEffect(() => {
+    const audio = new Audio('/audio/ollie-intro.mp3')
+    audio.volume = 0.8
+    audioRef.current = audio
+    setShowCaption(true)
+    setCaption('')
+
+    audio.play().catch(() => {})
+
+    // Typewriter effect synced with audio duration
+    let interval
+    const startTypewriter = () => {
+      const totalChars = INTRO_TEXT.length
+      const duration = (audio.duration || 15) * 1000
+      const charInterval = duration / totalChars
+      let i = 0
+      interval = setInterval(() => {
+        if (i >= totalChars) {
+          clearInterval(interval)
+          return
+        }
+        setCaption(INTRO_TEXT.slice(0, i + 1))
+        i++
+      }, charInterval)
+    }
+
+    if (audio.readyState >= 1) {
+      startTypewriter()
+    } else {
+      audio.addEventListener('loadedmetadata', startTypewriter, { once: true })
+    }
+
+    const hideTimer = () => setTimeout(() => setShowCaption(false), 1500)
+    audio.addEventListener('ended', hideTimer, { once: true })
+
+    return () => {
+      audio.pause()
+      audio.currentTime = 0
+      if (interval) clearInterval(interval)
+    }
+  }, [])
+
+  const toggleMute = () => {
+    if (!audioRef.current) return
+    const newMuted = !muted
+    audioRef.current.muted = newMuted
+    setMuted(newMuted)
+  }
 
   const isActive = timerRunning && timeLeft > 0
   const seconds = Math.max(0, timeLeft)
@@ -72,6 +128,16 @@ export default function Drawing() {
           <span className="paper-timer-label">Waiting...</span>
         )}
       </div>
+
+      <button className="audio-toggle" onClick={toggleMute} title={muted ? 'Unmute' : 'Mute'}>
+        {muted ? '🔇' : '🔊'}
+      </button>
+
+      {showCaption && caption && (
+        <div className="ollie-caption">
+          <p className="ollie-caption-text">{caption}<span className="caption-cursor">|</span></p>
+        </div>
+      )}
     </div>
   )
 }

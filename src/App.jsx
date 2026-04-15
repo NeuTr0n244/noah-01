@@ -5,6 +5,7 @@ import Scene3D from './components/Scene3D'
 import Navigation from './components/Navigation'
 import UserProfile from './components/UserProfile'
 import Chat from './components/Chat/Chat'
+import LoadingScreen from './components/LoadingScreen/LoadingScreen'
 import Home from './pages/Home'
 import Drawing from './pages/Drawing'
 import Gallery from './pages/Gallery'
@@ -24,7 +25,7 @@ function AppContent({ userProfile, handleProfileChange }) {
       </div>
 
       {/* Title - Top left */}
-      <h1 className="app-title">Sam Universe</h1>
+      <h1 className="app-title">Ollie Universe</h1>
 
       {/* Profile - Top right */}
       <div className="profile-button">
@@ -58,6 +59,7 @@ function AppContent({ userProfile, handleProfileChange }) {
 
 export default function App() {
   const [userProfile, setUserProfile] = useState({ username: '', avatar: null })
+  const [loading, setLoading] = useState(true)
 
   const handleProfileChange = useCallback((profile) => {
     setUserProfile(profile)
@@ -66,6 +68,7 @@ export default function App() {
   return (
     <FirebaseProvider>
       <BrowserRouter>
+        {loading && <LoadingScreen onFinish={() => setLoading(false)} />}
         <AppContent userProfile={userProfile} handleProfileChange={handleProfileChange} />
       </BrowserRouter>
     </FirebaseProvider>

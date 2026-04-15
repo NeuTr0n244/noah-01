@@ -18,7 +18,7 @@ export default function Home() {
           {isDrawing ? (
             <span className="home-status-live">
               <span className="status-dot"></span>
-              Sam is drawing...
+              Ollie is drawing...
             </span>
           ) : (
             <span className="home-status-idle">Waiting for suggestions</span>
@@ -33,7 +33,7 @@ export default function Home() {
           className="home-cta"
           onClick={() => navigate('/drawing')}
         >
-          Suggest what Sam should draw next
+          Suggest what Ollie should draw next
         </button>
       </div>
     </div>

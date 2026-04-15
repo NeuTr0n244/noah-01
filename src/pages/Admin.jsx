@@ -125,7 +125,7 @@ export default function Admin() {
       }
 
       return {
-        title: `Sam's Art #${nextOrder}`,
+        title: `Ollie's Art #${nextOrder}`,
         number: `#${nextOrder}`,
         order: nextOrder
       }
@@ -136,7 +136,7 @@ export default function Admin() {
       const snapshot = await getDocs(drawingsQuery)
       const count = snapshot.size + 1
       return {
-        title: `Sam's Art #${count}`,
+        title: `Ollie's Art #${count}`,
         number: `#${count}`,
         order: count
       }
@@ -634,7 +634,7 @@ export default function Admin() {
         <div className="migration-section">
           <h2 className="section-subtitle">Database Migration</h2>
           <p className="migration-hint">
-            Run this to set "order" field (integer) and "revealed" status on existing drawings. Extracts numbers from titles like "Sam's Art #7" and orders drawings numerically.
+            Run this to set "order" field (integer) and "revealed" status on existing drawings. Extracts numbers from titles like "Ollie's Art #7" and orders drawings numerically.
           </p>
           <button
             className="migration-button"
@@ -666,7 +666,7 @@ export default function Admin() {
               </svg>
               <h3 className="drop-zone-title">Drag & Drop Images Here</h3>
               <p className="drop-zone-subtitle">Upload 10, 20, 50+ images at once</p>
-              <p className="drop-zone-hint">Images auto-titled as "Sam's Art #1", "Sam's Art #2", etc.</p>
+              <p className="drop-zone-hint">Images auto-titled as "Ollie's Art #1", "Ollie's Art #2", etc.</p>
 
               <button
                 type="button"
@@ -787,7 +787,7 @@ export default function Admin() {
               id="title"
               type="text"
               className="form-input"
-              placeholder="e.g., Sam's Drawing"
+              placeholder="e.g., Ollie's Drawing"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required

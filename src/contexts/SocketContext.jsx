@@ -65,7 +65,7 @@ export function SocketProvider({ children }) {
       const galleryItem = {
         id: `drawing-${drawingNumber}`,
         image: newDrawing,
-        name: `Sam's Art #${drawingNumber}`,
+        name: `Ollie's Art #${drawingNumber}`,
         timestamp: Date.now()
       }
 
