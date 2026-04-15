@@ -3,7 +3,7 @@ import { useFirebase } from '../contexts/FirebaseContext'
 import { useNavigate } from 'react-router-dom'
 import './Home.css'
 
-const CONTRACT_ADDRESS = 'SOON'
+const CONTRACT_ADDRESS = 'G1vE7Aum6fKpCFGZSnVAqS5tzuzn9XeybvN8tDNEpump'
 
 export default function Home() {
   const { gallery, timeLeft, timerRunning } = useFirebase()
@@ -47,9 +47,11 @@ export default function Home() {
         </button>
       </div>
 
-      <button className="home-ca" onClick={copyCA} title="Click to copy">
+      <button className="home-ca" onClick={copyCA} title={CONTRACT_ADDRESS}>
         <span className="home-ca-label">CA:</span>
-        <span className="home-ca-value">{CONTRACT_ADDRESS}</span>
+        <span className="home-ca-value">
+          {CONTRACT_ADDRESS.slice(0, 4)}...{CONTRACT_ADDRESS.slice(-4)}
+        </span>
         <span className="home-ca-icon">{copied ? '✓' : '📋'}</span>
       </button>
     </div>
