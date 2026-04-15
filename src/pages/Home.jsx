@@ -1,13 +1,23 @@
+import { useState } from 'react'
 import { useFirebase } from '../contexts/FirebaseContext'
 import { useNavigate } from 'react-router-dom'
 import './Home.css'
 
+const CONTRACT_ADDRESS = 'SOON'
+
 export default function Home() {
   const { gallery, timeLeft, timerRunning } = useFirebase()
   const navigate = useNavigate()
+  const [copied, setCopied] = useState(false)
 
   const totalDrawings = gallery.filter(d => d.revealed).length
   const isDrawing = timerRunning && timeLeft > 0
+
+  const copyCA = () => {
+    navigator.clipboard.writeText(CONTRACT_ADDRESS)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
 
   return (
     <div className="home-page">
@@ -36,6 +46,12 @@ export default function Home() {
           Suggest what Ollie should draw next
         </button>
       </div>
+
+      <button className="home-ca" onClick={copyCA} title="Click to copy">
+        <span className="home-ca-label">CA:</span>
+        <span className="home-ca-value">{CONTRACT_ADDRESS}</span>
+        <span className="home-ca-icon">{copied ? '✓' : '📋'}</span>
+      </button>
     </div>
   )
 }

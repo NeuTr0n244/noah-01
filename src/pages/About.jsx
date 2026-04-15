@@ -25,7 +25,7 @@ export default function About() {
         </p>
 
         <a
-          href="https://x.com/Noahdrawing"
+          href="https://x.com/_OllieUniverse"
           className="about-twitter-btn"
           target="_blank"
           rel="noopener noreferrer"

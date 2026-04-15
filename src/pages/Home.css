@@ -87,6 +87,50 @@
   transform: translateY(1px);
 }
 
+/* CA Button - bottom right */
+.home-ca {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 200, 66, 0.25);
+  border-radius: 30px;
+  padding: 10px 18px;
+  font-family: var(--font-crayon);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.2s ease;
+  z-index: 5;
+}
+
+.home-ca:hover {
+  background: rgba(245, 200, 66, 0.15);
+  border-color: rgba(245, 200, 66, 0.5);
+  transform: translateY(-2px);
+}
+
+.home-ca-label {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.home-ca-value {
+  color: #F5C842;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.home-ca-icon {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
 @media (max-width: 768px) {
   .home-page {
     padding: 0 15px 60px;
@@ -99,5 +143,11 @@
   .home-cta {
     font-size: 1.1rem;
     padding: 12px 24px;
+  }
+
+  .home-ca {
+    bottom: 16px;
+    right: 16px;
+    padding: 8px 14px;
   }
 }
